@@ -1,0 +1,2 @@
+app: main.c ./lib/hd44780.h ./lib/DHT.h
+	cc -o app main.c ./lib/hd44780.c ./lib/DHT.c

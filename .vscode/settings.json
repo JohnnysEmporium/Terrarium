@@ -1,0 +1,13 @@
+{
+    "cmake.configureOnOpen": true,
+    "files.associations": {
+        "io.h": "c",
+        "dht.h": "c",
+        "stdlib.h": "c",
+        "interrupt.h": "c",
+        "iom328p.h": "c",
+        "delay.h": "c",
+        "sfr_defs.h": "c",
+        "pgmspace.h": "c"
+    }
+}
