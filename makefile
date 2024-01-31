@@ -1,19 +1,21 @@
+SHELL := cmd
 #Main application file name
-
 MAIN_APP = main
 
 LIB_DHT = ./lib/AVR-DHT/DHT
+LIB_DHT_H = ./lib/DHT_handler/DHTHandler
 LIB_HD = ./lib/hd44780/hd44780
 
+COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o
+
 #Main hex file path in windows format MAIN_HEX_PATH =
-MAIN_HEX_PATH = D\:\\LocalRepo\\workspace\\Arduino IDE\\Main\out\\${MAIN_APP}.hex
+MAIN_HEX_PATH = "D:/LocalRepo/workspace/Arduino IDE/Main/main.hex"
 
 # Compiler and other Section 
 CC = avr-gcc.exe
 C++ = avr-g++.exe
 OBJCOPY = avr-objcopy.exe
-AVRDUDE := avrdude -C "D\:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\\etc\\avrdude.conf"
-
+AVRDUDE := avrdude
 #Defines
 DEFINE = -DF_CPU=8000000L
 DEFINE += -D__AVR_ATmega328P__
@@ -40,7 +42,7 @@ DUDEFLAGS += -P
 DUDEFLAGS += COM3
 DUDEFLAGS += -b
 DUDEFLAGS += 19200
-DUDEFLAGS += -U flash\:w\:$(MAIN_HEX_PATH)\:i
+DUDEFLAGS += -U flash:w:$(MAIN_HEX_PATH):i
 
 # Sources files needed for building the application
 
@@ -53,6 +55,7 @@ SRC = $(MAIN_APP).cpp
 #INCLUDE = -I.
 INCLUDE += -I./lib/AVR-DHT
 INCLUDE += -I./lib/hd44780_111
+INCLUDE += -I./lib/DHT_handler
 
 #INCLUDE += -L.
 #INCLUDE += -L./lib/AVR-DHT-master
@@ -73,11 +76,14 @@ $(LIB_DHT).o: $(LIB_DHT).c $(LIB_DHT).h $(LIB_DHT)_settings.h
 $(LIB_HD).o: $(LIB_HD).c $(LIB_HD).h $(LIB_HD)_settings.h
 	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_HD).c
 
-$(MAIN_APP).o: $(SRC) $(LIB_HD).o $(LIB_DHT).o
+$(LIB_DHT_H).o: $(LIB_DHT_H).cpp $(LIB_DHT_H).hpp
+	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT_H).cpp
+
+$(MAIN_APP).o: $(SRC) $(COMPILED_LIBS)
 	$(C++) $^ $(INCLUDE) $(DEFINE) $(MAINCFLAGS) $@
 
-$(MAIN_APP).elf: $(MAIN_APP).o $(LIB_HD).o $(LIB_DHT).o
-	$(CC) $(SRC) $(LIB_DHT).o $(LIB_HD).o $(INCLUDE) $(LFLAGS) $@
+$(MAIN_APP).elf: $(MAIN_APP).o $(COMPILED_LIBS)
+	$(C++) $(SRC) $(COMPILED_LIBS) $(INCLUDE) $(LFLAGS) $@
 
 Build: $(MAIN_APP).elf
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex

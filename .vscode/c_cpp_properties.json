@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/lib/hd44780",
-                "${workspaceFolder}/lib/AVR-DHT"
+                "${workspaceFolder}/lib/AVR-DHT",
+                "D:\\LocalRepo\\workspace\\TOOLS\\WinAVR\\avr\\include\\**"
             ],
             "defines": [
                 "_DEBUG",
@@ -14,10 +15,10 @@
                 "__AVR_ATmega328p__"
             ],
             "windowsSdkVersion": "10.0.19041.0",
-            "compilerPath": "D:\\LocalRepo\\workspace\\TOOLS\\WinAVR\\bin\\avr-g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "gcc-x86"
+            "intelliSenseMode": "gcc-x86",
+            "compilerPath": "D:/LocalRepo/workspace/TOOLS/WinAVR/bin/avr-g++.exe"
         }
     ],
     "version": 4

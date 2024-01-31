@@ -1,0 +1,2 @@
+void DHTInit();
+void DHTMain();

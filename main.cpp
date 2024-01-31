@@ -6,6 +6,7 @@ extern "C" {
 #include <util/delay.h>
 #include <stdlib.h> 
 #include <string.h>
+#include "lib/DHT_handler/DHTHandler.hpp"
 
 //Coursor default position for disaplying values
 #define LCD_SEM_0       0x02
@@ -26,14 +27,6 @@ volatile uint8_t H_CNT = 14;
 uint8_t SEC_OLD = 30;
 uint8_t MIN_OLD = 0;
 uint8_t H_OLD = 0;
-
-// global variables for temp and hum average
-int temp_hum_run = 0;
-int TEMP_VALUES[10] = {0};
-int HUM_VALUES[10] = {0};
-int TEMP_HUM_VALUES_SIZE = 10;
-int IS_STARTING_CNT = 0;
-
 
 // Timer1 initialization
 void init_timer1()
@@ -146,85 +139,12 @@ void managePump(){
   
 }
 
-//returns average temperature from 10 samples
-int calculateAverageTemp(){
-  int temp_sum = 0;
-  uint8_t i;
-  for(i = 0; i < TEMP_HUM_VALUES_SIZE; i++){
-    temp_sum += TEMP_VALUES[i];
-  }
-
-  return temp_sum / TEMP_HUM_VALUES_SIZE;
-}
-
-//returns average humidity from 10 samples
-int calculateAverageHum(){
-  int hum_sum = 0;
-  uint8_t i;
-  for(i = 0; i < TEMP_HUM_VALUES_SIZE; i++){
-    hum_sum += HUM_VALUES[i];
-  }
-  
-  return hum_sum / TEMP_HUM_VALUES_SIZE;  
-}
-
-void readDHTSensor(){
-
-  double temperature[1];
-  double humidity[1];
-  int temp_i, hum_i;
-  double temp_d, hum_d;
-  char temp[5];
-  char hum[5];
-  int temp_avg;
-  int hum_avg;
-
-  DHT_Read(temperature, humidity);
-  
-  switch (DHT_GetStatus()){
-    
-    case (DHT_Ok):      
-      temp_i = temperature[0] * 10;
-      hum_i = humidity[0] * 10;
-      TEMP_VALUES[temp_hum_run] = temp_i;
-      HUM_VALUES[temp_hum_run] = hum_i;
-      temp_hum_run++;
-      break;
-    
-    case (DHT_Error_Checksum):
-      lcd_goto(LCD_TEMP_CONST);
-      lcd_puts("DHT ERROR CHECKSUM");
-      break;
-    case (DHT_Error_Timeout):
-      lcd_goto(LCD_TEMP_CONST);
-      lcd_puts("DHT ERROR TIMEOUT"); 
-      break;
-  } 
-
-  if(temp_hum_run >= 10){
-    temp_hum_run = 0;
-  }
-
-  temp_avg = calculateAverageTemp();
-  hum_avg = calculateAverageHum();
-  
-  temp_d = (double)temp_avg / 10;
-  hum_d = (double)hum_avg / 10;
-  
-  dtostrf(temp_d,-4,1,temp);
-  dtostrf(hum_d,-4,1,hum);
-  lcd_goto(LCD_TEMP);
-  lcd_puts(temp);
-  lcd_goto(LCD_HUM);
-  lcd_puts(hum);     
-}
-
 //Setting up necessary resources
 void setup() {
   init_timer1();
   lcd_init();
   lcdPutConstantSymbols();
-  DHT_Setup();
+  DHTInit();
   sei();
 }
 
@@ -264,13 +184,13 @@ void manageTime(){
     
     SEC_OLD = s;
     printTime(2, s);
-    readDHTSensor();
+    DHTMain();
     //Pump should start after the array with temp/hum values fills up, maybe embed it in an if to limit usage 1time/5s?
-    if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
-      managePump();
-    } else {
-      IS_STARTING_CNT++;
-    }
+    // if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
+    //   managePump();
+    // } else {
+    //   IS_STARTING_CNT++;
+    // }
   }
 }
 
