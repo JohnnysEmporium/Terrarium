@@ -4,29 +4,17 @@ extern "C" {
 }
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include <stdlib.h> 
-#include <string.h>
 #include "lib/DHT_handler/DHTHandler.hpp"
-
-//Coursor default position for disaplying values
-#define LCD_SEM_0       0x02
-#define LCD_SEM_1       0x05
-#define LCD_H           0x00
-#define LCD_M           0x03
-#define LCD_S           0x06
-#define LCD_TEMP_CONST  0x40
-#define LCD_RH_CONST    0x48
-#define LCD_TEMP        0x43
-#define LCD_HUM         0x4C
-
+#include "lib/LCD_handler/LCDHandler.hpp"
+#include "lib/time_handler/TimeHandler.hpp"
 
 // global variables for time management
-volatile uint8_t SEC_CNT = 55;
-volatile uint8_t MIN_CNT = 31;
-volatile uint8_t H_CNT = 14;
-uint8_t SEC_OLD = 30;
-uint8_t MIN_OLD = 0;
-uint8_t H_OLD = 0;
+volatile uint8_t SEC_CNT = 00;
+volatile uint8_t MIN_CNT = 00;
+volatile uint8_t H_CNT = 12;
+uint8_t SEC_OLD = -1;
+uint8_t MIN_OLD = -1;
+uint8_t H_OLD = -1;
 
 // Timer1 initialization
 void init_timer1()
@@ -50,11 +38,6 @@ void init_timer1()
  */
 ISR(TIMER1_COMPA_vect) {
   SEC_CNT++;
-  /*
-    Maybe move ifs part into the main loop
-    according to this: http://www.gammon.com.au/forum/?id=11488, interrupt should only remember/change(?) value
-    which should later be used in main loop - see "What interrupts are NOT" section.
-  */
   if (SEC_CNT == 60) {
     SEC_CNT = 0;
     MIN_CNT++;
@@ -68,73 +51,6 @@ ISR(TIMER1_COMPA_vect) {
   }
 }
 
-//Puts default constant symbols onto LCD
-void lcdPutConstantSymbols(){
-  lcd_clrscr();
-  lcd_goto(LCD_SEM_0);
-  lcd_puts(":");
-  lcd_goto(LCD_SEM_1);
-  lcd_puts(":");
-  
-  lcd_goto(LCD_TEMP_CONST);
-  lcd_puts("T: ");
-  lcd_goto(LCD_RH_CONST);
-  lcd_puts("RH: ");
-}
-
-void printTime(int c, uint8_t val) {
-  switch(c){
-    char buf[8];
-    
-    
-    case 0:
-      itoa(val, buf, 10);
-      if (val < 10) {
-        char h_disp[3];
-        h_disp[0] = '0';
-        h_disp[1] = '\0';
-        strcat(h_disp, buf);
-        lcd_goto(LCD_H);
-        lcd_puts(h_disp);
-      } else {
-        lcd_goto(LCD_H);
-        lcd_puts(buf);
-      }    
-      break;
-    
-    case 1:
-      itoa(val, buf, 10);
-      if (val < 10) {
-        char m_disp[3];
-        m_disp[0] = '0';
-        m_disp[1] = '\0';
-        strcat(m_disp, buf);
-        lcd_goto(LCD_M);
-        lcd_puts(m_disp);
-      } else {
-        lcd_goto(LCD_M);
-        lcd_puts(buf);
-      } 
-      break; 
-    
-    case 2:
-      itoa(val, buf, 10);
-      if (val < 10) {  
-        char s_disp[3];
-        s_disp[0] = '0';
-        s_disp[1] = '\0';
-        strcat(s_disp, buf);
-        lcd_goto(LCD_S);
-        lcd_puts(s_disp);
-      } else {
-        lcd_goto(LCD_S);
-        lcd_puts(buf);
-      }
-      break; 
-  }
-  
-}
-
 void managePump(){
   
 }
@@ -142,20 +58,12 @@ void managePump(){
 //Setting up necessary resources
 void setup() {
   init_timer1();
-  lcd_init();
-  lcdPutConstantSymbols();
+  LCDInit();
   DHTInit();
   sei();
 }
 
-/*
- * Ifs are handling the display of a number < 10 by
- * adding 0 at the begening of char array
- * 
- * Could create a separate function but this would
- * increase processor load and method execution time
- * Execution time > Program memory
- */
+
 void manageTime(){
   static uint8_t h = 0;
   static uint8_t m = 0;
@@ -169,7 +77,7 @@ void manageTime(){
   s = SEC_CNT;
   //Restore interrupts
   sei();
-  
+
   if(H_OLD != h){
     H_OLD = h;
     printTime(0, h);
@@ -198,12 +106,8 @@ void manageTime(){
 int main()
 {
   setup();
-
-
   while (1)
   {
-    
     manageTime();
-    
   }
 }

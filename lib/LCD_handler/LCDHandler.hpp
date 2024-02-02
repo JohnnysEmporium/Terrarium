@@ -8,3 +8,8 @@
 #define LCD_RH_CONST    0x48
 #define LCD_TEMP        0x43
 #define LCD_HUM         0x4C
+
+void LCDInit();
+void LCDPutConstantSymbols();
+void LCDOn();
+void LCDOff();

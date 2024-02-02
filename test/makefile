@@ -1,3 +1,4 @@
+SHELL := cmd
 MAIN_APP = blink
 
 CC = avr-gcc.exe

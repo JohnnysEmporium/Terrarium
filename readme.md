@@ -11,17 +11,23 @@ external interrupts - https://www.youtube.com/watch?v=eZH4B4PIIPU
 
 TODO:
 
-3 przyciski:
-    - czas +
-    - czas -
-    - "ostatnie karmienie: / last fed: $(days)" 
+- Fixup the way +5v and GND is connected on the board
 
-2 relaye:
-    - światło
-    - filtr wody
+- add connectors for buttons and solder their circuits
 
-2 tranzystory:
-    - pompa wody
-    - nawilżacz
 
-reszta to już lutowanie, spięcie ze sobą zasilania do pompy i nawilżacza, podpięcie relayów
+3 buttons: 
+    - time +
+    - time -
+    - switch to "last fed: $(days)" view
+
+2 relays:
+    - light
+    - water filter
+
+2(3?) MOSFET transistors
+    - water pump
+    - humidifier
+    - LCD light (?)
+
+rest is soldering, connecting power to pump and humidifier, hooking up the relays.

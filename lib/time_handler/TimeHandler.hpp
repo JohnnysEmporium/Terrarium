@@ -1,0 +1,1 @@
+void printTime(int c, uint8_t val);

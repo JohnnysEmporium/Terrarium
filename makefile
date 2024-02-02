@@ -5,8 +5,10 @@ MAIN_APP = main
 LIB_DHT = ./lib/AVR-DHT/DHT
 LIB_DHT_H = ./lib/DHT_handler/DHTHandler
 LIB_HD = ./lib/hd44780/hd44780
+LIB_LCD_H = ./lib/LCD_handler/LCDHandler
+LIB_TIME_H = ./lib/time_handler/TimeHandler
 
-COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o
+COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_TIME_H).o
 
 #Main hex file path in windows format MAIN_HEX_PATH =
 MAIN_HEX_PATH = "D:/LocalRepo/workspace/Arduino IDE/Main/main.hex"
@@ -69,27 +71,40 @@ INCLUDE += -I./lib/DHT_handler
 
 # commands Section 
 
-
+#DHT Library
 $(LIB_DHT).o: $(LIB_DHT).c $(LIB_DHT).h $(LIB_DHT)_settings.h
 	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT).c
 
+#LCD Library
 $(LIB_HD).o: $(LIB_HD).c $(LIB_HD).h $(LIB_HD)_settings.h
 	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_HD).c
 
+#DHT Handler
 $(LIB_DHT_H).o: $(LIB_DHT_H).cpp $(LIB_DHT_H).hpp
 	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT_H).cpp
 
+#LCD Handler
+$(LIB_LCD_H).o: $(LIB_LCD_H).cpp $(LIB_LCD_H).hpp
+	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_H).cpp
+
+#Time Handler
+$(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp
+	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_TIME_H).cpp
+
+#Main
 $(MAIN_APP).o: $(SRC) $(COMPILED_LIBS)
 	$(C++) $^ $(INCLUDE) $(DEFINE) $(MAINCFLAGS) $@
 
 $(MAIN_APP).elf: $(MAIN_APP).o $(COMPILED_LIBS)
 	$(C++) $(SRC) $(COMPILED_LIBS) $(INCLUDE) $(LFLAGS) $@
 
-Build: $(MAIN_APP).elf
+build: $(MAIN_APP).elf
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex
 
-Burn: Build 
+burn: Build 
 	$(AVRDUDE) $(DUDEFLAGS)
 
+clean: 
+	rm $(COMPILED_LIBS)
 
 

@@ -8,7 +8,8 @@
         "iom328p.h": "c",
         "delay.h": "c",
         "sfr_defs.h": "c",
-        "pgmspace.h": "c"
+        "pgmspace.h": "c",
+        "hd44780_settings.h": "c"
     },
     "C_Cpp.default.compilerPath": "D:\\LocalRepo\\workspace\\TOOLS\\WinAVR\\bin\\avr-g++.exe"
 }

@@ -1,6 +1,6 @@
 #include "../AVR-DHT/DHT.h"
 #include "../hd44780/hd44780.h"
-#include "../LCD_helper/LCDHelper.h"
+#include "../LCD_handler/LCDHandler.hpp"
 #include <stdlib.h>
 
 // global variables for temp and hum average
