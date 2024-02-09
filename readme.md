@@ -7,6 +7,7 @@ bit manipulation - http://www.rjhcoding.com/avrc-bit-manip.php
 
 external interrupts - https://www.youtube.com/watch?v=eZH4B4PIIPU
 
+timers - http://fabacademy.org/archives/2015/eu/students/gunnarsson.thorarinn_b.b/docs/d7/Timers.pdf
 
 
 TODO:
@@ -14,6 +15,8 @@ TODO:
 - Fixup the way +5v and GND is connected on the board
 
 - add connectors for buttons and solder their circuits
+
+- use second timer for milis(?)
 
 
 3 buttons: 
@@ -31,3 +34,14 @@ TODO:
     - LCD light (?)
 
 rest is soldering, connecting power to pump and humidifier, hooking up the relays.
+
+
+
+
+Buttons:
+
+1                   2                  3
+switch display      -                  long-press to enable time edition
+increase time       decrease time      short press to change position (after long-press)
+-                   -                  short press to wake up
+-                   -                  short press to turn on display

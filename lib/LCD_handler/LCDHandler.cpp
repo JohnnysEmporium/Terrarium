@@ -5,6 +5,8 @@ extern "C" {
   #include "../hd44780/hd44780.h"
 }
 
+int8_t OLD_VALUE = 0;
+
 void LCDInit(){
     lcd_init();
     LCDPutConstantSymbols();
@@ -30,3 +32,9 @@ void LCDOff(){
 void LCDOn(){
   lcd_command(_BV(LCD_DISPLAYMODE) | _BV(LCD_DISPLAYMODE_ON));
 }
+
+// void LCDBlink(int position, ){
+//   lcd_goto(position);
+//   lcd_puts("  ");
+
+// }

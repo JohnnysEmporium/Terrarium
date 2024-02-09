@@ -23,11 +23,11 @@ DEFINE = -DF_CPU=8000000L
 DEFINE += -D__AVR_ATmega328P__
 
 #Options for avr-gcc 
-CFLAGS = -g -Os -c -o
-MAINCFLAGS = -g -Os -o
+CFLAGS = -mmcu=atmega328p -g -Os -c -o 
+MAINCFLAGS = -mmcu=atmega328p -g -Os -o 
 
 #Linking options for avr-gcc 
-LFLAGS = -Os -mmcu=atmega328p -o
+LFLAGS = -mmcu=atmega328p -Os -o
 
 #Options for HEX file generation 
 HFLAGS = -j .text -j .data -O ihex
@@ -58,6 +58,8 @@ SRC = $(MAIN_APP).cpp
 INCLUDE += -I./lib/AVR-DHT
 INCLUDE += -I./lib/hd44780_111
 INCLUDE += -I./lib/DHT_handler
+INCLUDE += -I./lib/LCD_handler/LCDHandler
+INCLUDE += -I./lib/time_handler/TimeHandler
 
 #INCLUDE += -L.
 #INCLUDE += -L./lib/AVR-DHT-master
