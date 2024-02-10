@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/lib/hd44780",
                 "${workspaceFolder}/lib/AVR-DHT",
-                "D:\\LocalRepo\\workspace\\TOOLS\\WinAVR\\avr\\include\\**"
+                "D:/LocalRepo/workspace/TOOLS/WinAVR/avr/include/**",
+                "D:/LocalRepo/workspace/TOOLS/WinAVR/avr/include/avr/**"
             ],
             "defines": [
                 "_DEBUG",

@@ -1,3 +1,5 @@
+#include "avr\sfr_defs.h"
+
 //Positions of items on LCD
 #define LCD_SEM_0       0x02
 #define LCD_SEM_1       0x05
@@ -11,5 +13,8 @@
 
 void LCDInit();
 void LCDPutConstantSymbols();
+void LCDGoTo(uint8_t pos);
+void LCDPuts(const char *s);
 void LCDOn();
 void LCDOff();
+void printTime(int c, uint8_t val);

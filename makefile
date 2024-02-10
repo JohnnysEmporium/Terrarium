@@ -3,12 +3,21 @@ SHELL := cmd
 MAIN_APP = main
 
 LIB_DHT = ./lib/AVR-DHT/DHT
-LIB_DHT_H = ./lib/DHT_handler/DHTHandler
+LIB_DHT_H = ./lib/DHTHandler/DHTHandler
 LIB_HD = ./lib/hd44780/hd44780
-LIB_LCD_H = ./lib/LCD_handler/LCDHandler
-LIB_TIME_H = ./lib/time_handler/TimeHandler
+LIB_LCD_H = ./lib/LCDHandler/LCDHandler
+LIB_TIME_H = ./lib/TimeHandler/TimeHandler
+LIB_BUTTON_H = ./lib/ButtonHandler/ButtonHandler
 
-COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_TIME_H).o
+# The headers files needed for building the application
+INCLUDE += -I.$(LIB_DHT)
+INCLUDE += -I.$(LIB_DHT_H)
+INCLUDE += -I.$(LIB_HD)
+INCLUDE += -I.$(LIB_LCD_H)
+INCLUDE += -I.$(LIB_TIME_H)
+INCLUDE += -I.$(LIB_BUTTON_H)
+
+COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_TIME_H).o $(LIB_BUTTON_H).o
 
 #Main hex file path in windows format MAIN_HEX_PATH =
 MAIN_HEX_PATH = "D:/LocalRepo/workspace/Arduino IDE/Main/main.hex"
@@ -50,27 +59,6 @@ DUDEFLAGS += -U flash:w:$(MAIN_HEX_PATH):i
 
 SRC = $(MAIN_APP).cpp
 
-#DEPS = hd44780.h
-
-# The headers files needed for building the application
-
-#INCLUDE = -I.
-INCLUDE += -I./lib/AVR-DHT
-INCLUDE += -I./lib/hd44780_111
-INCLUDE += -I./lib/DHT_handler
-INCLUDE += -I./lib/LCD_handler/LCDHandler
-INCLUDE += -I./lib/time_handler/TimeHandler
-
-#INCLUDE += -L.
-#INCLUDE += -L./lib/AVR-DHT-master
-#INCLUDE += -L./lib/hd44780_111
-
-#INCLUDE += -lDHT
-#INCLUDE += -lhd44780
-
-#INCLUDE += -v
-
-
 # commands Section 
 
 #DHT Library
@@ -92,6 +80,10 @@ $(LIB_LCD_H).o: $(LIB_LCD_H).cpp $(LIB_LCD_H).hpp
 #Time Handler
 $(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp
 	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_TIME_H).cpp
+
+#Button Library
+$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp
+	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_BUTTON_H).cpp
 
 #Main
 $(MAIN_APP).o: $(SRC) $(COMPILED_LIBS)
