@@ -5,7 +5,7 @@
 #include <avr/io.h>
 
 uint8_t MSEC_OLD = -1;
-volatile uint8_t **MSEC_CNT_ADDR;
+volatile uint8_t *MSEC_CNT_ADDR;
 
 //Timer1 initialization
 void init_timer1() {
@@ -58,7 +58,7 @@ void initTimeHandler(volatile uint8_t *MSEC_CNT_addr){
   init_timer0();
   pause_timer0();
   init_timer1();
-  MSEC_CNT_ADDR = &MSEC_CNT_addr;
+  MSEC_CNT_ADDR = MSEC_CNT_addr;
 }
 
 /*
@@ -122,9 +122,7 @@ void wait(uint16_t milis) {
  
   while(loop_cnt != 0) {
     pause_timer0();
-    msec = **MSEC_CNT_ADDR;
-    printTime(0, msec);
-    start_timer0();
+    msec = *MSEC_CNT_ADDR;
     if(msec == MSEC_OLD + 1) {
       loop_cnt--;
     }

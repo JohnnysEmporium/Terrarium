@@ -42,7 +42,6 @@ bool FLAG = false;
  */
 ISR(TIMER1_COMPA_vect) {
   SEC_CNT++;
-  printTime(1, SEC_CNT);
   if (SEC_CNT == 60) {
     SEC_CNT = 0;
     MIN_CNT++;
