@@ -1,11 +1,11 @@
 #include <stdint.h>
 
-extern volatile uint8_t SEC_CNT;
-extern volatile uint8_t MIN_CNT;
+extern volatile uint8_t S_CNT;
+extern volatile uint8_t M_CNT;
 extern volatile uint8_t H_CNT;
 
 
-void initTimeHandler();
+bool* initTimeHandler();
 
 void pause_timer0();
 void pause_timer1();

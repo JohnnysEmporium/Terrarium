@@ -6,21 +6,18 @@
 
 // global variables for time management
 volatile uint8_t MSEC_CNT = 0;
-volatile uint8_t SEC_CNT = 0;
-volatile uint8_t MIN_CNT = 0;
+volatile uint8_t S_CNT = 0;
+volatile uint8_t M_CNT = 0;
 volatile uint8_t H_CNT = 12;
-// uint8_t MSEC_OLD = -1;
-uint8_t SEC_OLD = -1;
-uint8_t MIN_OLD = -1;
+
+uint8_t MSEC_OLD = -1;
+uint8_t S_OLD = -1;
+uint8_t M_OLD = -1;
 uint8_t H_OLD = -1;
 
 uint8_t H = 0;
 uint8_t M = 0;
 uint8_t S = 0;
-
-
-uint8_t MSEC_OLD = -1;
-volatile uint8_t *MSEC_CNT_ADDR;
 
 uint16_t set_flag_after_milis_compare_value = 0;
 uint16_t set_flag_after_milis_counter_old = 0;
@@ -67,7 +64,7 @@ void init_timer0() {
 
 void pause_timer0() {
   //Set CS bits to 0 - no clock source
-  TCCR0A &= ~(1 << CS00) | ~(1 << CS01) | ~(1 << CS02);
+  TCCR0B &= ~((1 << CS00) | (1 << CS01) | (1 << CS02));
 }
 
 void start_timer0() {
@@ -75,10 +72,11 @@ void start_timer0() {
   TCCR0B |= (1 << CS00) | (1 << CS02);
 }
 
-void initTimeHandler(){
+bool* initTimeHandler(){
   init_timer0();
   pause_timer0();
   init_timer1();
+  return &set_flag_after_milis_running;
 }
 
 void wait(uint16_t milis) {
@@ -87,7 +85,7 @@ void wait(uint16_t milis) {
  
   while(loop_cnt != 0) {
     pause_timer0();
-    msec = *MSEC_CNT_ADDR;
+    msec = MSEC_CNT;
     start_timer0();
     if(msec == MSEC_OLD + 1) {
       loop_cnt--;
@@ -98,22 +96,27 @@ void wait(uint16_t milis) {
 }
 
 //Asynchronous wait
+
 bool* set_flag_after_milis(uint16_t milis, bool &flag) {
   if(!set_flag_after_milis_running) {
-    start_timer0();
     set_flag_after_milis_running = true;
     set_flag_after_milis_compare_value = milis/20 + 1;
   }
   pause_timer0();
-  uint8_t counter = *MSEC_CNT_ADDR;
+  uint8_t counter = MSEC_CNT;
   start_timer0();  
-  
+  // printTime(0, set_flag_after_milis_compare_value);
+
   if(set_flag_after_milis_compare_value == 0) {
     set_flag_after_milis_running = false;
-    flag = true;
+    flag = !flag;
     pause_timer0();
+    // LCDGoTo(LCD_TEMP);
+    // LCDPuts("true");
   } else if(counter == set_flag_after_milis_counter_old + 1) {
-    set_flag_after_milis_compare_value--;  
+    set_flag_after_milis_compare_value--;
+    // LCDGoTo(LCD_TEMP);
+    // LCDPuts("false");
   }
   set_flag_after_milis_counter_old = counter;
   return &set_flag_after_milis_running;
@@ -125,25 +128,25 @@ void manageTime() {
   cli();
   //Assign volatile int to be processed
   H = H_CNT;
-  M = MIN_CNT;
-  S = SEC_CNT;
+  M = M_CNT;
+  S = S_CNT;
   //Starting interrupts
   sei();
 
   if(H_OLD != H){
     H_OLD = H;
-    printTime(0, H);
+    printTime(LCD_H, H);
   }
   
-  if(MIN_OLD != M){
-    MIN_OLD = M;
-    printTime(1, M);
+  if(M_OLD != M){
+    M_OLD = M;
+    printTime(LCD_M, M);
   }
 
-  if(SEC_OLD != S){
+  if(S_OLD != S){
     
-    SEC_OLD = S;
-    printTime(2, S);
+    S_OLD = S;
+    printTime(LCD_S, S);
     // DHTMain();
     //Pump should start after the array with temp/hum values fills up, maybe embed it in an if to limit usage 1time/5s?
     // if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
@@ -161,13 +164,13 @@ void manageTime() {
  * for the uC to be put to sleep when it's functions are not needed
  */
 ISR(TIMER1_COMPA_vect) {
-  SEC_CNT++;
-  if (SEC_CNT == 60) {
-    SEC_CNT = 0;
-    MIN_CNT++;
+  S_CNT++;
+  if (S_CNT == 60) {
+    S_CNT = 0;
+    M_CNT++;
   }
-  if (MIN_CNT == 60) {
-    MIN_CNT = 0;
+  if (M_CNT == 60) {
+    M_CNT = 0;
     H_CNT++;
   }
   if (H_CNT == 24) {

@@ -53,6 +53,7 @@ DUDEFLAGS += -P
 DUDEFLAGS += COM3
 DUDEFLAGS += -b
 DUDEFLAGS += 19200
+DUDEFLAGS += -V
 DUDEFLAGS += -U flash:w:$(MAIN_HEX_PATH):i
 
 # Sources files needed for building the application
@@ -77,13 +78,14 @@ $(LIB_DHT_H).o: $(LIB_DHT_H).cpp $(LIB_DHT_H).hpp
 $(LIB_LCD_H).o: $(LIB_LCD_H).cpp $(LIB_LCD_H).hpp
 	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_H).cpp
 
-#Time Handler
-$(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp
-	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_TIME_H).cpp
+#Time Handler - abandoned -Os because the compiler was causing problems with one of the functions
+# see ButtonHandler comment for more.
+$(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp $(LIB_LCD_H).o
+	$(C++) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_TIME_H).cpp
 
-#Button Library
-$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp
-	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_BUTTON_H).cpp
+#Button Library - same as above
+$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp $(LIB_TIME_H).o $(LIB_LCD_H).o
+	$(CC) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_BUTTON_H).cpp
 
 #Main
 $(MAIN_APP).o: $(SRC) $(COMPILED_LIBS)

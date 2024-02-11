@@ -62,10 +62,10 @@ void printTime(int c, uint8_t val) {
         h_disp[0] = '0';
         h_disp[1] = '\0';
         strcat(h_disp, buf);
-        lcd_goto(LCD_H);
+        lcd_goto(LCD_H_POS);
         lcd_puts(h_disp);
       } else {
-        lcd_goto(LCD_H);
+        lcd_goto(LCD_H_POS);
         lcd_puts(buf);
       }    
       break;
@@ -77,10 +77,10 @@ void printTime(int c, uint8_t val) {
         m_disp[0] = '0';
         m_disp[1] = '\0';
         strcat(m_disp, buf);
-        lcd_goto(LCD_M);
+        lcd_goto(LCD_M_POS);
         lcd_puts(m_disp);
       } else {
-        lcd_goto(LCD_M);
+        lcd_goto(LCD_M_POS);
         lcd_puts(buf);
       } 
       break; 
@@ -92,10 +92,10 @@ void printTime(int c, uint8_t val) {
         s_disp[0] = '0';
         s_disp[1] = '\0';
         strcat(s_disp, buf);
-        lcd_goto(LCD_S);
+        lcd_goto(LCD_S_POS);
         lcd_puts(s_disp);
       } else {
-        lcd_goto(LCD_S);
+        lcd_goto(LCD_S_POS);
         lcd_puts(buf);
       }
       break; 

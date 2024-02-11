@@ -10,6 +10,7 @@ external interrupts - https://www.youtube.com/watch?v=eZH4B4PIIPU
 timers - http://fabacademy.org/archives/2015/eu/students/gunnarsson.thorarinn_b.b/docs/d7/Timers.pdf
 
 
+
 TODO:
 
 - Fixup the way +5v and GND is connected on the board
@@ -45,3 +46,5 @@ switch display      -                  long-press to enable time edition
 increase time       decrease time      short press to change position (after long-press)
 -                   -                  short press to wake up
 -                   -                  short press to turn on display
+
+smth wrong with stopping timer0

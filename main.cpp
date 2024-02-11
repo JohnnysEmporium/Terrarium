@@ -11,8 +11,8 @@ extern "C" {
 
 //Setting up necessary resources
 void setup() {
-  initTimeHandler();
-  initButtonHandler();
+  bool *timer_bool_reference = initTimeHandler();
+  initButtonHandler(timer_bool_reference);
   LCDInit();
   DHTInit();
   sei();
@@ -22,10 +22,9 @@ void setup() {
 int main()
 {
   setup();
-  // button_setup();
   while (1)
   {
     manageTime();
-
+    buttonLoop();
   }
 }
