@@ -22,7 +22,12 @@ uint8_t S = 0;
 uint16_t set_flag_after_milis_compare_value = 0;
 uint16_t set_flag_after_milis_counter_old = 0;
 bool set_flag_after_milis_running = false;
-bool FLAG = false;
+
+uint16_t set_flag_after_milis_compare_value2 = 0;
+uint16_t set_flag_after_milis_counter_old2 = 0;
+bool set_flag_after_milis_running2 = false;
+
+bool *time_editing_engaged_addr;
 
 
 //Timer1 initialization
@@ -37,6 +42,10 @@ void init_timer1() {
   TIMSK1 |= (1 << OCIE1A);
   //Start Timer & Clock Select: Prescale I/O clock by 256
   TCCR1B |= (1 << CS12);
+}
+
+void setTimeEditingEngagedAddr(bool *addr){
+  time_editing_engaged_addr = addr;
 }
 
 void pause_timer1() {
@@ -72,11 +81,10 @@ void start_timer0() {
   TCCR0B |= (1 << CS00) | (1 << CS02);
 }
 
-bool* initTimeHandler(){
+void initTimeHandler(){
   init_timer0();
   pause_timer0();
   init_timer1();
-  return &set_flag_after_milis_running;
 }
 
 void wait(uint16_t milis) {
@@ -95,8 +103,7 @@ void wait(uint16_t milis) {
   pause_timer0();
 }
 
-//Asynchronous wait
-
+//Asynchronous waits, had to make 2 because they may be needed simultaniously
 bool* set_flag_after_milis(uint16_t milis, bool &flag) {
   if(!set_flag_after_milis_running) {
     set_flag_after_milis_running = true;
@@ -104,26 +111,42 @@ bool* set_flag_after_milis(uint16_t milis, bool &flag) {
   }
   pause_timer0();
   uint8_t counter = MSEC_CNT;
-  start_timer0();  
-  // printTime(0, set_flag_after_milis_compare_value);
+  start_timer0();
 
   if(set_flag_after_milis_compare_value == 0) {
     set_flag_after_milis_running = false;
     flag = !flag;
     pause_timer0();
-    // LCDGoTo(LCD_TEMP);
-    // LCDPuts("true");
   } else if(counter == set_flag_after_milis_counter_old + 1) {
     set_flag_after_milis_compare_value--;
-    // LCDGoTo(LCD_TEMP);
-    // LCDPuts("false");
   }
+
   set_flag_after_milis_counter_old = counter;
   return &set_flag_after_milis_running;
 }
 
+bool* set_flag_after_milis2(uint16_t milis, bool &flag) {
+  if(!set_flag_after_milis_running2) {
+    set_flag_after_milis_running2 = true;
+    set_flag_after_milis_compare_value2 = milis/20 + 1;
+  }
+  pause_timer0();
+  uint8_t counter2 = MSEC_CNT;
+  start_timer0();
+
+  if(set_flag_after_milis_compare_value2 == 0) {
+    set_flag_after_milis_running2 = false;
+    flag = !flag;
+    pause_timer0();
+  } else if(counter2 == set_flag_after_milis_counter_old2 + 1) {
+    set_flag_after_milis_compare_value2--;
+  }
+
+  set_flag_after_milis_counter_old2 = counter2;
+  return &set_flag_after_milis_running2;
+}
+
 void manageTime() {
-  
   //Stopping interrupts to assign variables
   cli();
   //Assign volatile int to be processed
@@ -132,6 +155,24 @@ void manageTime() {
   S = S_CNT;
   //Starting interrupts
   sei();
+
+  if (S >= 60) {
+    cli();
+    S_CNT = 0;
+    if(!*time_editing_engaged_addr) M_CNT++;
+    sei();
+  }
+  if (M >= 60) {
+    cli();
+    M_CNT = 0;
+    if(!*time_editing_engaged_addr) H_CNT++;
+    sei();
+  }
+  if (H >= 24) {
+    cli();
+    H_CNT = 0;
+    sei();
+  }
 
   if(H_OLD != H){
     H_OLD = H;
@@ -158,6 +199,10 @@ void manageTime() {
 
 }
 
+void printAllTime(){
+
+}
+
 // Timer1 output compare match A interrupt rutine
 /*
  * Incrementing hours and minutes in the ISR creates possibility
@@ -165,17 +210,6 @@ void manageTime() {
  */
 ISR(TIMER1_COMPA_vect) {
   S_CNT++;
-  if (S_CNT == 60) {
-    S_CNT = 0;
-    M_CNT++;
-  }
-  if (M_CNT == 60) {
-    M_CNT = 0;
-    H_CNT++;
-  }
-  if (H_CNT == 24) {
-    H_CNT = 0;
-  }
 }
 
 /*

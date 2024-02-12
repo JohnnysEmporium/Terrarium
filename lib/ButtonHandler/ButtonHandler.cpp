@@ -5,12 +5,14 @@
 #include <avr/interrupt.h>
 
 bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR;
+bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR2;
 
 bool time_increase_pressed = false; //Initialize/Declare the Pressed variable
 bool time_increase_delay_engaged = false;
 bool time_editing_pressed = false;
 bool time_editing_engaged = false;
 bool is_editing_time = false;
+bool time_printed_after_edit = false;
 
 uint8_t s_value;
 uint8_t m_value;
@@ -23,12 +25,16 @@ uint8_t time_editing_section = 0;
 
 bool blink_flag = false;
 
-void initButtonHandler(bool set_flag_after_milis_running) {
+bool* initButtonHandler() {
   //Data Direction Register input PINC5
   DDRC &= ~(1 << PINC5); 
   //Set PINC5 pull-up resistor
   PORTC |= 1 << PINC5;
-  SET_FLAG_AFTER_MILIS_RUNNING_ADDR = &set_flag_after_milis_running;
+
+  DDRD &= ~(1 << PIND2);
+  PORTD |= 1 << PIND2;
+
+  return &time_editing_engaged;
 }
 
 bool isTimeEditTimedOut(){
@@ -52,42 +58,51 @@ void resetTimeframeForTimeEdit(){
   timeframe_for_time_edit = 5;
 }
 
+void timeIncrementBasedOnSection(){
+  switch(time_editing_section){
+    case LCD_H:
+      cli();
+      H_CNT++;
+      sei();
+      break;
+    case LCD_M:
+      cli();
+      M_CNT++;
+      sei();
+      break;
+    case LCD_S:
+      cli();
+      S_CNT++;
+      sei();
+      break;
+  }
+}
+
 void timeIncrementButtonLoop() {
-  //Check if PINC5 is clear
-  if (!(PINC & (1<<PC4))) {
+  //Check if PIND2 is clear
+  if (!(PIND & (1<<PD2)) && time_editing_engaged) {
     //Make sure that the button was released first
     if (!time_increase_pressed) {
       // LCDOn();
       time_increase_pressed = true;
-      cli();
-      H_CNT++;
-      sei();
+      timeIncrementBasedOnSection();
+
+    } else if(time_increase_pressed && !time_increase_delay_engaged){
+      SET_FLAG_AFTER_MILIS_RUNNING_ADDR2 = set_flag_after_milis2(200, time_increase_delay_engaged);
     
-    //Introduce delay
-    } else if(time_increase_pressed & !time_increase_delay_engaged){
-      time_increase_delay_engaged = true;
-      wait(500);
-    
-    //After above delay, start incrementing every ~200ms
-    } else if(time_increase_pressed & time_increase_delay_engaged){
-      cli();
-      H_CNT++;
-      sei();
-      wait(200);
+    } else if(time_increase_pressed && time_increase_delay_engaged){
+      time_increase_delay_engaged = false;
+      timeIncrementBasedOnSection();
+
     }
+    resetTimeframeForTimeEdit();
+
   } else {
     // LCDOff();
     time_increase_delay_engaged = false;
     time_increase_pressed = false;
     is_editing_time = false;
-  }
-
-  if (!(PINC & (1<<PC5))) {
-    if(!time_editing_pressed){
-      time_editing_pressed = true;
-    } else {
-      time_editing_pressed = false;
-    }
+    *SET_FLAG_AFTER_MILIS_RUNNING_ADDR2 = false;
   }
 }
 
@@ -135,8 +150,10 @@ void timeEditButtonLoop(){
 
 void buttonLoop(){
   timeEditButtonLoop();
+  timeIncrementButtonLoop();
 
   if(time_editing_engaged){
+    time_printed_after_edit = false;
     
     //Assign value for monitoring how long time editing is engaged
     if(!blink_flag){
@@ -156,7 +173,7 @@ void buttonLoop(){
 
       LCDGoTo(lcd_pos);
       LCDPuts("  ");
-      SET_FLAG_AFTER_MILIS_RUNNING_ADDR = set_flag_after_milis(500, blink_flag);
+      SET_FLAG_AFTER_MILIS_RUNNING_ADDR = set_flag_after_milis(200, blink_flag);
     }
 
     if(blink_flag){
@@ -182,14 +199,19 @@ void buttonLoop(){
       SET_FLAG_AFTER_MILIS_RUNNING_ADDR = set_flag_after_milis(500, blink_flag);
     }
 
-    if(isTimeEditTimedOut()){
+    if(isTimeEditTimedOut() && !time_printed_after_edit){
       /*
+      Found during button testing:
       Due to compilation optimization, directly using s_value in printTime, exacly on position 2,
         leads to extended amount of time waiting for set_flag_after_milis function, this causes 
         the program to enter time editing mode after 2-4x more time.
       No idea why/how that happens and honestly don't care at this point. Replacing -Os with -O2...
       */
-      printTime(2, s_value);
+      time_printed_after_edit = true;
+      setTimeValues();
+      printTime(LCD_H, h_value);
+      printTime(LCD_M, m_value);
+      printTime(LCD_S, s_value);
       blink_flag = false;
       time_editing_engaged = false;
     }

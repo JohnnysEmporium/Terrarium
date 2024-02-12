@@ -1,3 +1,3 @@
-void initButtonHandler(bool set_flag_after_milis_running);
+bool* initButtonHandler();
 void timeIncrementButtonLoop();
 void buttonLoop();

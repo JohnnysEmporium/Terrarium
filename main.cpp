@@ -9,16 +9,21 @@ extern "C" {
 #include "lib/TimeHandler/TimeHandler.hpp"
 #include "lib/ButtonHandler/ButtonHandler.hpp"
 
+
+
 //Setting up necessary resources
 void setup() {
-  bool *timer_bool_reference = initTimeHandler();
-  initButtonHandler(timer_bool_reference);
+  initTimeHandler();
+  bool* time_editing_engaged_addr = initButtonHandler();
+  //setting address of time_editing_engaged variable from ButtonHandler
+  //done this way not to make 'extern' and include ButtonHanlder.hpp in TimeHandler unnecessairly
+  setTimeEditingEngagedAddr(time_editing_engaged_addr);
   LCDInit();
   DHTInit();
   sei();
 }
 
-//For stopping lights after evening, use one of the sleep modes (idle?) by setting SM bits, wake up with timer1 interrupt
+//For stopping lights after evening, use one of the sleep modes (idle?) by setting SM bits, wake up with timer1 and/or INT0 interrupts
 int main()
 {
   setup();
