@@ -1,5 +1,6 @@
 #include "../hd44780/hd44780.h"
 #include "../LCDHandler/LCDHandler.hpp"
+#include "../DHTHandler/DHTHandler.hpp"
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -188,7 +189,7 @@ void manageTime() {
     
     S_OLD = S;
     printTime(LCD_S, S);
-    // DHTMain();
+    DHTMain();
     //Pump should start after the array with temp/hum values fills up, maybe embed it in an if to limit usage 1time/5s?
     // if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
     //   managePump();

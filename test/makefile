@@ -26,13 +26,17 @@ DUDEFLAGS += -b
 DUDEFLAGS += 19200
 DUDEFLAGS += -U flash:w:$(MAIN_HEX_PATH):i
 
-$(MAIN_APP).o: $(MAIN_APP).cpp
+
+klass.o: klass.cpp klass.hpp
+	$(C++) $(DEFINE) $(CFLAGS) ./$@ klass.cpp
+
+$(MAIN_APP).o: $(MAIN_APP).cpp klass.o
 	$(C++) $^ $(DEFINE) $(MAINCFLAGS) $@
 
-$(MAIN_APP).elf: $(MAIN_APP).o
-	$(C++) $(MAIN_APP).cpp $(LFLAGS) $@
+$(MAIN_APP).elf: $(MAIN_APP).o klass.o
+	$(C++) $(MAIN_APP).cpp $(LFLAGS) $@ klass.o
 
-Build: $(MAIN_APP).elf
+Build: $(MAIN_APP).elf 
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex
 
 Burn: Build 

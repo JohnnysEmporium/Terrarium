@@ -11,6 +11,7 @@ uint8_t OLD_VALUE = 0;
 void LCDInit(){
     lcd_init();
     LCDPutConstantSymbols();
+    DDRC |= (1 << PC0);
 }
 
 void LCDPutConstantSymbols(){
@@ -27,11 +28,11 @@ void LCDPutConstantSymbols(){
 }
 
 void LCDOff(){
-  lcd_command(_BV(LCD_DISPLAYMODE));
+  PORTC &= ~(1 << PC0);
 }
 
 void LCDOn(){
-  lcd_command(_BV(LCD_DISPLAYMODE) | _BV(LCD_DISPLAYMODE_ON));
+  PORTC |= (1 << PC0);
 }
 
 void LCDPuts(const char *s){

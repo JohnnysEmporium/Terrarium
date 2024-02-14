@@ -136,8 +136,9 @@ void timeEditButtonLoop(){
       printTime(LCD_M, m_value);
       printTime(LCD_S, s_value);
       timeframe_for_time_edit = 5;
-      
-    }
+    
+    
+    }   
   
   //Reset timer running bool for if
   } else if(!time_editing_engaged){
