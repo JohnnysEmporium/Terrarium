@@ -82,69 +82,32 @@ void start_timer0() {
   TCCR0B |= (1 << CS00) | (1 << CS02);
 }
 
+void incrementCounter(ptEnum counter){
+  switch(counter){
+    case LCD_H:
+      cli();
+      H_CNT++;
+      sei();
+      break;
+
+    case LCD_M:
+      cli();
+      M_CNT++;
+      sei();
+      break;
+      
+    case LCD_S:
+      cli();
+      S_CNT++;
+      sei();
+      break;
+  }
+}
+
 void initTimeHandler(){
   init_timer0();
   pause_timer0();
   init_timer1();
-}
-
-void wait(uint16_t milis) {
-  uint16_t loop_cnt = milis/20 + 1;
-  uint8_t msec = 0;
- 
-  while(loop_cnt != 0) {
-    pause_timer0();
-    msec = MSEC_CNT;
-    start_timer0();
-    if(msec == MSEC_OLD + 1) {
-      loop_cnt--;
-    }
-    MSEC_OLD = msec;
-  }
-  pause_timer0();
-}
-
-//Asynchronous waits, had to make 2 because they may be needed simultaniously
-bool* set_flag_after_milis(uint16_t milis, bool &flag) {
-  if(!set_flag_after_milis_running) {
-    set_flag_after_milis_running = true;
-    set_flag_after_milis_compare_value = milis/20 + 1;
-  }
-  pause_timer0();
-  uint8_t counter = MSEC_CNT;
-  start_timer0();
-
-  if(set_flag_after_milis_compare_value == 0) {
-    set_flag_after_milis_running = false;
-    flag = !flag;
-    pause_timer0();
-  } else if(counter == set_flag_after_milis_counter_old + 1) {
-    set_flag_after_milis_compare_value--;
-  }
-
-  set_flag_after_milis_counter_old = counter;
-  return &set_flag_after_milis_running;
-}
-
-bool* set_flag_after_milis2(uint16_t milis, bool &flag) {
-  if(!set_flag_after_milis_running2) {
-    set_flag_after_milis_running2 = true;
-    set_flag_after_milis_compare_value2 = milis/20 + 1;
-  }
-  pause_timer0();
-  uint8_t counter2 = MSEC_CNT;
-  start_timer0();
-
-  if(set_flag_after_milis_compare_value2 == 0) {
-    set_flag_after_milis_running2 = false;
-    flag = !flag;
-    pause_timer0();
-  } else if(counter2 == set_flag_after_milis_counter_old2 + 1) {
-    set_flag_after_milis_compare_value2--;
-  }
-
-  set_flag_after_milis_counter_old2 = counter2;
-  return &set_flag_after_milis_running2;
 }
 
 void manageTime() {
@@ -187,9 +150,10 @@ void manageTime() {
 
   if(S_OLD != S){
     
-    S_OLD = S;
-    printTime(LCD_S, S);
+    
     DHTMain();
+      S_OLD = S;
+      printTime(LCD_S, S);
     //Pump should start after the array with temp/hum values fills up, maybe embed it in an if to limit usage 1time/5s?
     // if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
     //   managePump();
@@ -197,10 +161,6 @@ void manageTime() {
     //   IS_STARTING_CNT++;
     // }
   }
-
-}
-
-void printAllTime(){
 
 }
 

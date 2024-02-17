@@ -2,16 +2,26 @@ extern "C" {
   #include "../hd44780/hd44780.h"
 }
 #include "LCDHandler.hpp"
-#include "avr\sfr_defs.h"
+#include "../DelayHandler/DelayHandler.hpp"
+#include <avr\sfr_defs.h>
 #include <stdlib.h>
 #include <string.h>
+#include <avr/io.h>
 
 uint8_t OLD_VALUE = 0;
+
+DelayHandler delayHandler;
+
+bool *SET_FLAG_AFTER_SECONDS_RUNNING_LCD_TIMER_ADDR;
+bool turn_off_lcd = false;
+bool IS_LCD_ON;
 
 void LCDInit(){
     lcd_init();
     LCDPutConstantSymbols();
     DDRC |= (1 << PC0);
+    PORTC |= (1 << PC0);
+    IS_LCD_ON = true;
 }
 
 void LCDPutConstantSymbols(){
@@ -28,11 +38,22 @@ void LCDPutConstantSymbols(){
 }
 
 void LCDOff(){
+  DDRD &= ~(1 << PIND4);
+  DDRD &= ~(1 << PIND5);
+  DDRD &= ~(1 << PIND6);
+  DDRD &= ~(1 << PIND7);
+  DDRD &= ~(1 << PIND1);
+  DDRD &= ~(1 << PIND3);
   PORTC &= ~(1 << PC0);
+  IS_LCD_ON = false;
 }
 
 void LCDOn(){
+  lcd_init();
+  LCDPutConstantSymbols();
   PORTC |= (1 << PC0);
+  IS_LCD_ON = true;
+  //printDHTValues();  
 }
 
 void LCDPuts(const char *s){
@@ -47,6 +68,31 @@ void LCDGoTo(uint8_t pos){
 //   lcd_puts("  ");
 
 // }
+
+void LCDWakeUp(){
+  if(!IS_LCD_ON){
+    LCDOn();
+    printAllTime();
+  }
+  delayHandler.resetSecondsTimer();
+}
+
+void LCDOffTimer(){
+  if(IS_LCD_ON){
+    SET_FLAG_AFTER_SECONDS_RUNNING_LCD_TIMER_ADDR = delayHandler.set_flag_after_seconds(5, turn_off_lcd);
+    if(turn_off_lcd) {
+      delayHandler.resetSecondsTimer();
+      turn_off_lcd = false;
+      LCDOff();
+    }
+  }
+}
+
+void printAllTime(){
+  printTime(LCD_H, H);
+  printTime(LCD_M, M);
+  printTime(LCD_S, S);
+}
 
 /*
  * Ifs are handling the display of a number < 10 by

@@ -7,6 +7,7 @@ LIB_DHT_H = ./lib/DHTHandler/DHTHandler
 LIB_HD = ./lib/hd44780/hd44780
 LIB_LCD_H = ./lib/LCDHandler/LCDHandler
 LIB_TIME_H = ./lib/TimeHandler/TimeHandler
+LIB_DELAY_H = ./lib/DelayHandler/DelayHandler
 LIB_BUTTON_H = ./lib/ButtonHandler/ButtonHandler
 
 # The headers files needed for building the application
@@ -15,9 +16,10 @@ INCLUDE += -I.$(LIB_DHT_H)
 INCLUDE += -I.$(LIB_HD)
 INCLUDE += -I.$(LIB_LCD_H)
 INCLUDE += -I.$(LIB_TIME_H)
+INCLUDE += -I.$(LIB_DELAY_H)
 INCLUDE += -I.$(LIB_BUTTON_H)
 
-COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_TIME_H).o $(LIB_BUTTON_H).o
+COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_TIME_H).o $(LIB_DELAY_H).o $(LIB_BUTTON_H).o
 
 #Main hex file path in windows format MAIN_HEX_PATH =
 MAIN_HEX_PATH = "D:/LocalRepo/workspace/Arduino IDE/Main/main.hex"
@@ -83,8 +85,12 @@ $(LIB_LCD_H).o: $(LIB_LCD_H).cpp $(LIB_LCD_H).hpp
 $(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp $(LIB_LCD_H).o
 	$(C++) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_TIME_H).cpp
 
+#Delay Handler
+$(LIB_DELAY_H).o: $(LIB_DELAY_H).cpp $(LIB_DELAY_H).hpp $(LIB_TIME_H).o
+	$(CC) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_DELAY_H).cpp
+
 #Button Library - same as above
-$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp $(LIB_TIME_H).o $(LIB_LCD_H).o
+$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp $(LIB_TIME_H).o $(LIB_LCD_H).o $(LIB_DELAY_H).o
 	$(CC) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_BUTTON_H).cpp
 
 #Main

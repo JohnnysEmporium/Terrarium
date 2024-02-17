@@ -76,6 +76,7 @@ void DHTMain(){
             lcd_puts(hum);  
             break;
         
+        //These are here for debugging, remove for final version.
         case (DHT_Error_Checksum):
             lcd_goto(LCD_TEMP_CONST);
             lcd_puts("DHT ERR CHECKSUM");

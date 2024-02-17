@@ -34,7 +34,7 @@
 #define LCD_RS_PORT              PORTD       // Port for RS line
 #define LCD_RS_PIN               1           // Pin for RS line
 
-#define LCD_RW_PORT              PORTD       // Port for RW line (ONLY used if RW_LINE_IMPLEMENTED=1)
+#define LCD_RW_PORT              PORTB       // Port for RW line (ONLY used if RW_LINE_IMPLEMENTED=1)
 #define LCD_RW_PIN               3           // Pin for RW line (ONLY used if RW_LINE_IMPLEMENTED=1)
 
 #define LCD_DISPLAYS             1           // Up to 4 LCD displays can be used at one time

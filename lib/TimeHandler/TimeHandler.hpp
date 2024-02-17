@@ -1,8 +1,10 @@
 #include <stdint.h>
+#include "../LCDHandler/LCDHandler.hpp"
 
-extern volatile uint8_t S_CNT;
-extern volatile uint8_t M_CNT;
-extern volatile uint8_t H_CNT;
+extern volatile uint8_t MSEC_CNT;
+extern volatile uint8_t S;
+extern volatile uint8_t M;
+extern volatile uint8_t H;
 
 
 void initTimeHandler();
@@ -14,8 +16,6 @@ void pause_timer1();
 void start_timer0();
 void start_timer1();
 
-void wait(uint16_t milis);
-bool* set_flag_after_milis(uint16_t milis, bool &flag);
-bool* set_flag_after_milis2(uint16_t milis, bool &flag);
+void incrementCounter(ptEnum counter);
 
 void manageTime();

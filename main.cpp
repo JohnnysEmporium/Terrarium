@@ -19,7 +19,7 @@ void setup() {
   //done this way not to make 'extern' and include ButtonHanlder.hpp in TimeHandler unnecessairly
   setTimeEditingEngagedAddr(time_editing_engaged_addr);
   LCDInit();
-  DHTInit();
+  // DHTInit();
   sei();
 }
 
@@ -31,5 +31,6 @@ int main()
   {
     manageTime();
     buttonLoop();
+    LCDOffTimer();
   }
 }

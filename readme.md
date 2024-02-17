@@ -47,4 +47,5 @@ increase time       decrease time      short press to change position (after lon
 -                   -                  short press to wake up
 -                   -                  short press to turn on display
 
-smth wrong with stopping timer0
+
+Refactor function that handles turning of the time edit mode, make it similar to the one that turns off LCD after x seconds.
