@@ -14,10 +14,11 @@ extern "C" {
 //Setting up necessary resources
 void setup() {
   initTimeHandler();
-  bool* time_editing_engaged_addr = initButtonHandler();
+  ButtonHandler buttonHandler = ButtonHandler();
+  bool time_editing_engaged_addr = buttonHandler.initButtonHandler();
   //setting address of time_editing_engaged variable from ButtonHandler
   //done this way not to make 'extern' and include ButtonHanlder.hpp in TimeHandler unnecessairly
-  setTimeEditingEngagedAddr(time_editing_engaged_addr);
+  setTimeEditingEngagedAddr(&time_editing_engaged_addr);
   LCDInit();
   // DHTInit();
   
@@ -35,14 +36,14 @@ int main()
   while (1)
   {
     manageTime();
-    buttonLoop();
     LCDOffTimer();
 
-    if(bit_is_clear(PIND, 0)){
-      printTime(0, 20);
-    } else {
-      printTime(0,10);
-    }
+
+    // if(bit_is_clear(PIND, 0)){
+    //   printTime(0, 20);
+    // } else {
+    //   printTime(0,10);
+    // }
 
     // PORTB ^= (1 << PINB1);
     // _delay_ms(1000);

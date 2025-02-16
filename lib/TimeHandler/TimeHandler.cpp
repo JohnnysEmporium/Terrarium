@@ -123,12 +123,14 @@ void manageTime() {
   if (S >= 60) {
     cli();
     S_CNT = 0;
+    //Edge case coverage - if seconds reach 60 during time editing stage, increment minutes counter
     if(!*time_editing_engaged_addr) M_CNT++;
     sei();
   }
   if (M >= 60) {
     cli();
     M_CNT = 0;
+    //Edge case coverage - if minutes reach 60 during time editing stage, increment hours counter
     if(!*time_editing_engaged_addr) H_CNT++;
     sei();
   }

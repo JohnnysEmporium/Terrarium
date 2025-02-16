@@ -1,23 +1,31 @@
-#include "ButtonHandler.hpp"
+#include "../TimeHandler/TimeHandler.hpp"
+#include "../LCDHandler/LCDHandler.hpp"
+#include "../DelayHandler/DelayHandler.hpp"
+#include <stdint.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
-ButtonHandler::ButtonHandler():
-  delayHandler1(DelayHandler()),
-  delayHandler2(DelayHandler()),
-  time_increase_pressed(false), //Initialize/Declare the Pressed variable
-  time_increase_delay_engaged(false),
-  time_editing_pressed(false),
-  time_editing_engaged(false),
-  is_editing_time(false),
-  time_printed_after_edit(false),
-  timeframe_for_time_edit(5),
-  timeframe_for_time_edit_s_value_old(-1),
-  time_editing_section(0),
-  blink_flag(false) {
-    initButtonHandler();
-  }
+bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR;
+bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR2;
 
+DelayHandler delayHandler1;
+DelayHandler delayHandler2;
 
-bool ButtonHandler::initButtonHandler() {
+bool time_increase_pressed = false; //Initialize/Declare the Pressed variable
+bool time_increase_delay_engaged = false;
+bool time_editing_pressed = false;
+bool time_editing_engaged = false;
+bool is_editing_time = false;
+bool time_printed_after_edit = false;
+
+uint8_t timeframe_for_time_edit = 5;
+uint8_t timeframe_for_time_edit_s_value_old = -1;
+
+uint8_t time_editing_section = 0;
+
+bool blink_flag = false;
+
+bool* initButtonHandler() {
   //Data Direction Register input PINC5
   DDRC &= ~(1 << PINC5); 
   //Set PINC5 pull-up resistor
@@ -26,12 +34,10 @@ bool ButtonHandler::initButtonHandler() {
   DDRD &= ~(1 << PIND2);
   PORTD |= 1 << PIND2;
 
-  return time_editing_engaged;
-  buttonLoop();
+  return &time_editing_engaged;
 }
 
-
-bool ButtonHandler::isTimeEditTimedOut(){
+bool isTimeEditTimedOut(){
   if(S == timeframe_for_time_edit_s_value_old + 1){
     timeframe_for_time_edit--;
   }
@@ -45,19 +51,19 @@ bool ButtonHandler::isTimeEditTimedOut(){
   }
 }
 
-void ButtonHandler::resetTimeframeForTimeEdit(){
+void resetTimeframeForTimeEdit(){
   timeframe_for_time_edit = 5;
 }
 
-void ButtonHandler::timeIncrementBasedOnSection(){
+void timeIncrementBasedOnSection(){
   incrementCounter(static_cast<ptEnum>(time_editing_section));
 }
 
-void ButtonHandler::timeIncrementButtonLoop() {
+void timeIncrementButtonLoop() {
 
   //Check if PIND2 is clear
   if (!(PIND & (1<<PD2)) && time_editing_engaged) {
-  
+   
     LCDWakeUp();
 
     //Make sure that the button was released first
@@ -86,7 +92,7 @@ void ButtonHandler::timeIncrementButtonLoop() {
 }
 
 //TEST METHOD FOR TIME EDITION
-void ButtonHandler::timeEditButtonLoop(){
+void timeEditButtonLoop(){
   
   if (!(PINC & (1<<PC5))) {
     
@@ -118,7 +124,7 @@ void ButtonHandler::timeEditButtonLoop(){
   }
 }
 
-void ButtonHandler::timeEditBlink(){
+void timeEditBlink(){
   if(time_editing_engaged){
 
     LCDWakeUp();
@@ -184,8 +190,10 @@ void ButtonHandler::timeEditBlink(){
   }
 }
 
-void ButtonHandler::buttonLoop(){
+void buttonLoop(){
   timeEditButtonLoop();
   timeEditBlink();
-  timeIncrementButtonLoop();      
+  timeIncrementButtonLoop();
+
+  
 }

@@ -104,7 +104,7 @@ build: $(MAIN_APP).elf
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex
 
 burn: Build 
-	$(AVRDUDE) $(DUDEFLAGS)
+	#$(AVRDUDE) $(DUDEFLAGS)
 
 clean: 
 	rm $(COMPILED_LIBS)
