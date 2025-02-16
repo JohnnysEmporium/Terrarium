@@ -20,6 +20,11 @@ void setup() {
   setTimeEditingEngagedAddr(time_editing_engaged_addr);
   LCDInit();
   // DHTInit();
+  
+  DDRD &= ~(1 << PIND0);
+  PORTD |= (1 << PIND0);
+
+  DDRB |= (1 << PINB1);
   sei();
 }
 
@@ -32,5 +37,17 @@ int main()
     manageTime();
     buttonLoop();
     LCDOffTimer();
+
+    if(bit_is_clear(PIND, 0)){
+      printTime(0, 20);
+    } else {
+      printTime(0,10);
+    }
+
+    // PORTB ^= (1 << PINB1);
+    // _delay_ms(1000);
+    // PORTB ^= (1 << PINB1);
+    // _delay_ms(2000);
+
   }
 }
