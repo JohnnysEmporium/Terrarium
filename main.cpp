@@ -15,12 +15,11 @@ extern "C" {
 void setup() {
   initTimeHandler();
   ButtonHandler buttonHandler = ButtonHandler();
-  bool time_editing_engaged_addr = buttonHandler.initButtonHandler();
-  //setting address of time_editing_engaged variable from ButtonHandler
-  //done this way not to make 'extern' and include ButtonHanlder.hpp in TimeHandler unnecessairly
-  setTimeEditingEngagedAddr(&time_editing_engaged_addr);
+  bool time_editing_engaged = buttonHandler.initButtonHandler();
+  //passing time_editing_engaged by reference
+  setTimeEditingEngaged(time_editing_engaged);
   LCDInit();
-  // DHTInit();
+  DHTInit();
   
   DDRD &= ~(1 << PIND0);
   PORTD |= (1 << PIND0);
