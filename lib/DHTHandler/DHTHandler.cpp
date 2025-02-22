@@ -32,32 +32,31 @@ int calculateAverageHum(){
     return hum_sum / arrsize;  
 }
 
-void DHTInit(){
+int* DHTInit(){
     DHT_Setup();
 }
 
-void DHTMain(){
+void DHTUpdate(double& temp, double& hum){
 
     double temperature[1];
     double humidity[1];
     int temp_i, hum_i;
     double temp_d, hum_d;
-    char temp[5];
-    char hum[5];
+    char temp_char[5];
+    char hum_char[5];
     int temp_avg;
     int hum_avg;
 
     DHT_Read(temperature, humidity);
     
     switch (DHT_GetStatus()){
-        
         case (DHT_Ok):      
             temp_i = temperature[0] * 10;
             hum_i = humidity[0] * 10;
             TEMP_VALUES[temp_hum_run] = temp_i;
             HUM_VALUES[temp_hum_run] = hum_i;
+            
             temp_hum_run++;
-
             if(temp_hum_run >= 10){
                 temp_hum_run = 0;
             }
@@ -65,15 +64,16 @@ void DHTMain(){
             temp_avg = calculateAverageTemp();
             hum_avg = calculateAverageHum();
             
-            temp_d = (double)temp_avg / 10;
-            hum_d = (double)hum_avg / 10;
+            temp_d = (double)temp_avg / 10.0;
+            hum_d = (double)hum_avg / 10.0;
             
-            dtostrf(temp_d,-4,1,temp);
-            dtostrf(hum_d,-4,1,hum);
+            
+            dtostrf(temp_d,-4,1,temp_char);
+            dtostrf(hum_d,-4,1,hum_char);
             lcd_goto(LCD_TEMP);
-            lcd_puts(temp);
+            lcd_puts(temp_char);
             lcd_goto(LCD_HUM);
-            lcd_puts(hum);  
+            lcd_puts(hum_char);  
             break;
         
         //These are here for debugging, remove for final version.
@@ -86,6 +86,7 @@ void DHTMain(){
             lcd_goto(LCD_TEMP_CONST);
             lcd_puts("DHT ERR TIMEOUT"); 
             break;
-    } 
-
+    }
+    temp = temp_d;
+    hum = hum_d;
 };

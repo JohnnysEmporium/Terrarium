@@ -1,2 +1,2 @@
 void DHTInit();
-void DHTMain();
+void DHTUpdate(double& temp, double& hum);

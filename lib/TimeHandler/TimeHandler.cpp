@@ -28,7 +28,8 @@ uint16_t set_flag_after_milis_compare_value2 = 0;
 uint16_t set_flag_after_milis_counter_old2 = 0;
 bool set_flag_after_milis_running2 = false;
 
-bool *time_editing_engaged_addr;
+bool time_editing_engaged;
+double temp, hum;
 
 
 //Timer1 initialization
@@ -45,8 +46,8 @@ void init_timer1() {
   TCCR1B |= (1 << CS12);
 }
 
-void setTimeEditingEngagedAddr(bool *addr){
-  time_editing_engaged_addr = addr;
+void setTimeEditingEngaged(bool& addr){
+  time_editing_engaged = addr;
 }
 
 void pause_timer1() {
@@ -120,25 +121,24 @@ void manageTime() {
   //Starting interrupts
   sei();
 
-  if (S >= 60) {
-    cli();
-    S_CNT = 0;
-    //Edge case coverage - if seconds reach 60 during time editing stage, increment minutes counter
-    if(!*time_editing_engaged_addr) M_CNT++;
-    sei();
-  }
-  if (M >= 60) {
-    cli();
-    M_CNT = 0;
-    //Edge case coverage - if minutes reach 60 during time editing stage, increment hours counter
-    if(!*time_editing_engaged_addr) H_CNT++;
-    sei();
-  }
-  if (H >= 24) {
-    cli();
-    H_CNT = 0;
-    sei();
-  }
+  //MOVED TO ISR - DON'T KNOW YET IF IT'S A GOOD MOVE BUT SEEMS LIKE IT
+  // if (S >= 60) {
+  //   cli();
+  //   S_CNT = 0;
+  //   // if(!time_editing_engaged) M_CNT++;
+  //   sei();
+  // }
+  // if (M >= 60) {
+  //   cli();
+  //   M_CNT = 0;
+  //   // if(!time_editing_engaged) H_CNT++;
+  //   sei();
+  // }
+  // if (H >= 24) {
+  //   cli();
+  //   H_CNT = 0;
+  //   sei();
+  // }
 
   if(H_OLD != H){
     H_OLD = H;
@@ -152,10 +152,25 @@ void manageTime() {
 
   if(S_OLD != S){
     
+    S_OLD = S;
+    printTime(LCD_S, S);
+
+    if(S % 5 == 0){
+      DHTUpdate(temp, hum);
+
+      if(temp < 27){
+        //Turn on lamp
+      } else {
+        //Turn off lamp
+      }
+
+      if(hum < 70){
+        //Turn on humidifier
+      } else {
+        //Turn off humidifier
+      }
+    }
     
-    DHTMain();
-      S_OLD = S;
-      printTime(LCD_S, S);
     //Pump should start after the array with temp/hum values fills up, maybe embed it in an if to limit usage 1time/5s?
     // if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
     //   managePump();
@@ -173,6 +188,17 @@ void manageTime() {
  */
 ISR(TIMER1_COMPA_vect) {
   S_CNT++;
+  if(S_CNT >= 60) {
+    S_CNT = 0;
+    M_CNT++;
+  }
+  if(M_CNT >= 60) {
+    M_CNT = 0;
+    H_CNT++;
+  }
+  if(H_CNT >= 24) {
+    H_CNT = 0;
+  }
 }
 
 /*

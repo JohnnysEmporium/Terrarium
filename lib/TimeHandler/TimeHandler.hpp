@@ -8,7 +8,7 @@ extern volatile uint8_t H;
 
 
 void initTimeHandler();
-void setTimeEditingEngagedAddr(bool *addr);
+void setTimeEditingEngaged(bool& addr);
 
 void pause_timer0();
 void pause_timer1();
