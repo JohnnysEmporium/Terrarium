@@ -1,3 +1,6 @@
+#ifndef DELAY_HANDLER
+#define DELAY_HANDLER
+
 #include <stdint.h>
 #include "../TimeHandler/TimeHandler.hpp"
 
@@ -15,6 +18,9 @@ class DelayHandler {
         DelayHandler();
 
         bool* set_flag_after_milis(uint16_t milis, bool &flag);
+        void resetMilisCounter();
         bool* set_flag_after_seconds(uint16_t seconds, bool &flag);
-        void resetSecondsTimer();
+        void resetSecondsCounter();
 };
+
+#endif

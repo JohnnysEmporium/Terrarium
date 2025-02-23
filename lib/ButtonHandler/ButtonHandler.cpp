@@ -1,8 +1,9 @@
 #include "ButtonHandler.hpp"
 
 ButtonHandler::ButtonHandler():
-  delayHandler1(DelayHandler()),
-  delayHandler2(DelayHandler()),
+  delayHandlerButtonEngaged(DelayHandler()),
+  delayHandlerBlink(DelayHandler()),
+  delayHandlerTimeIncrement(DelayHandler()),
   time_increase_pressed(false), //Initialize/Declare the Pressed variable
   time_increase_delay_engaged(false),
   time_editing_pressed(false),
@@ -27,7 +28,6 @@ bool ButtonHandler::initButtonHandler() {
   PORTD |= 1 << PIND2;
 
   return time_editing_engaged;
-  buttonLoop();
 }
 
 
@@ -67,7 +67,7 @@ void ButtonHandler::timeIncrementButtonLoop() {
       timeIncrementBasedOnSection();
 
     } else if(time_increase_pressed && !time_increase_delay_engaged){
-      SET_FLAG_AFTER_MILIS_RUNNING_ADDR2 = delayHandler2.set_flag_after_milis(200, time_increase_delay_engaged);
+      delayHandlerTimeIncrement.set_flag_after_milis(200, time_increase_delay_engaged);
     
     } else if(time_increase_pressed && time_increase_delay_engaged){
       time_increase_delay_engaged = false;
@@ -81,7 +81,6 @@ void ButtonHandler::timeIncrementButtonLoop() {
     time_increase_delay_engaged = false;
     time_increase_pressed = false;
     is_editing_time = false;
-    *SET_FLAG_AFTER_MILIS_RUNNING_ADDR2 = false;
   }
 }
 
@@ -96,7 +95,7 @@ void ButtonHandler::timeEditButtonLoop(){
     //time_editing_pressed ensures button was depressed first, before f.e. changing edit section
     if (!time_editing_engaged) {
       //Set flag that will tell the buttonLoop() to blink
-      SET_FLAG_AFTER_MILIS_RUNNING_ADDR = delayHandler1.set_flag_after_milis(2000, time_editing_engaged);
+      delayHandlerButtonEngaged.set_flag_after_milis(2000, time_editing_engaged);
       time_editing_pressed = true;
       time_editing_section = 0;
       
@@ -110,10 +109,8 @@ void ButtonHandler::timeEditButtonLoop(){
     }   
   
   //Reset timer running bool for if
-  } else if(!time_editing_engaged){
-      *SET_FLAG_AFTER_MILIS_RUNNING_ADDR = false;
-      time_editing_pressed = false;
   } else {
+    delayHandlerButtonEngaged.resetMilisCounter();
     time_editing_pressed = false;
   }
 }
@@ -141,7 +138,7 @@ void ButtonHandler::timeEditBlink(){
 
       LCDGoTo(lcd_pos);
       LCDPuts("  ");
-      SET_FLAG_AFTER_MILIS_RUNNING_ADDR = delayHandler1.set_flag_after_milis(200, blink_flag);
+      delayHandlerBlink.set_flag_after_milis(200, blink_flag);
     }
 
     if(blink_flag){
@@ -164,7 +161,7 @@ void ButtonHandler::timeEditBlink(){
       }
 
       printTime(time_editing_section, time_value_to_restore);
-      SET_FLAG_AFTER_MILIS_RUNNING_ADDR = delayHandler1.set_flag_after_milis(500, blink_flag);
+      delayHandlerBlink.set_flag_after_milis(500, blink_flag);
     }
 
     if(isTimeEditTimedOut()){

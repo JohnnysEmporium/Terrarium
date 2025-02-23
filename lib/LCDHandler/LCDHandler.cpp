@@ -1,12 +1,4 @@
-extern "C" {
-  #include "../hd44780/hd44780.h"
-}
 #include "LCDHandler.hpp"
-#include "../DelayHandler/DelayHandler.hpp"
-#include <avr\sfr_defs.h>
-#include <stdlib.h>
-#include <string.h>
-#include <avr/io.h>
 
 uint8_t OLD_VALUE = 0;
 
@@ -74,14 +66,14 @@ void LCDWakeUp(){
     LCDOn();
     printAllTime();
   }
-  delayHandler.resetSecondsTimer();
+  delayHandler.resetSecondsCounter();
 }
 
 void LCDOffTimer(){
   if(IS_LCD_ON){
     SET_FLAG_AFTER_SECONDS_RUNNING_LCD_TIMER_ADDR = delayHandler.set_flag_after_seconds(5, turn_off_lcd);
     if(turn_off_lcd) {
-      delayHandler.resetSecondsTimer();
+      delayHandler.resetSecondsCounter();
       turn_off_lcd = false;
       LCDOff();
     }

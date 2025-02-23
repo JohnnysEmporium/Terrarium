@@ -13,8 +13,9 @@ class ButtonHandler {
         bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR;
         bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR2;
 
-        DelayHandler delayHandler1;
-        DelayHandler delayHandler2;
+        DelayHandler delayHandlerButtonEngaged;
+        DelayHandler delayHandlerBlink;
+        DelayHandler delayHandlerTimeIncrement;
 
         bool time_increase_pressed; //Initialize/Declare the Pressed variable
         bool time_increase_delay_engaged;
@@ -35,10 +36,10 @@ class ButtonHandler {
         void timeIncrementButtonLoop();
         void timeEditButtonLoop();
         void timeEditBlink();
-        void buttonLoop();
-
+        
     public:
         bool time_editing_engaged;
+        void buttonLoop();
         ButtonHandler();
         bool initButtonHandler();
 };

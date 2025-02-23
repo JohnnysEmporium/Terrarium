@@ -1,51 +1,49 @@
-#include "../AVR-DHT/DHT.h"
-#include "../hd44780/hd44780.h"
-#include "../LCDHandler/LCDHandler.hpp"
-#include <stdlib.h>
+#include "DHTHandler.hpp"
 
 // global variables for temp and hum average
-const int arrsize = 10;
+extern const int DHTArrSize = 10;
 int temp_hum_run;
-int TEMP_VALUES[arrsize] = {10};
-int HUM_VALUES[arrsize] = {10};
+int TEMP_VALUES[DHTArrSize] = {10};
+int HUM_VALUES[DHTArrSize] = {10};
 int IS_STARTING_CNT;
+
+
+double temperature[1];
+double humidity[1];
+int temp_i, hum_i;
+double temp_d, hum_d;
+char temp_char[5];
+char hum_char[5];
+int temp_avg;
+int hum_avg;
 
 //returns average temperature from 10 samples
 int calculateAverageTemp(){
     int temp_sum = 0;
     uint8_t i;
-    for(i = 0; i < arrsize; i++){
+    for(i = 0; i < DHTArrSize; i++){
         temp_sum += TEMP_VALUES[i];
     }
 
-    return temp_sum / arrsize;
+    return temp_sum / DHTArrSize;
 }
 
 //returns average humidity from 10 samples
 int calculateAverageHum(){
     int hum_sum = 0;
     uint8_t i;
-    for(i = 0; i < arrsize; i++){
+    for(i = 0; i < DHTArrSize; i++){
         hum_sum += HUM_VALUES[i];
     }
     
-    return hum_sum / arrsize;  
+    return hum_sum / DHTArrSize;  
 }
 
-int* DHTInit(){
+void DHTInit(){
     DHT_Setup();
 }
 
 void DHTUpdate(double& temp, double& hum){
-
-    double temperature[1];
-    double humidity[1];
-    int temp_i, hum_i;
-    double temp_d, hum_d;
-    char temp_char[5];
-    char hum_char[5];
-    int temp_avg;
-    int hum_avg;
 
     DHT_Read(temperature, humidity);
     
@@ -68,8 +66,12 @@ void DHTUpdate(double& temp, double& hum){
             hum_d = (double)hum_avg / 10.0;
             
             
-            dtostrf(temp_d,-4,1,temp_char);
-            dtostrf(hum_d,-4,1,hum_char);
+            dtostrf(temperature[0],-4,1,temp_char);
+            dtostrf(humidity[0],-4,1,hum_char);
+            lcd_goto(LCD_TEMP_CONST);
+            lcd_puts("T:");
+            lcd_goto(LCD_RH_CONST);
+            lcd_puts("RH:");
             lcd_goto(LCD_TEMP);
             lcd_puts(temp_char);
             lcd_goto(LCD_HUM);
@@ -77,15 +79,15 @@ void DHTUpdate(double& temp, double& hum){
             break;
         
         //These are here for debugging, remove for final version.
-        case (DHT_Error_Checksum):
-            lcd_goto(LCD_TEMP_CONST);
-            lcd_puts("DHT ERR CHECKSUM");
-            break;
+        // case (DHT_Error_Checksum):
+        //     lcd_goto(LCD_TEMP_CONST);
+        //     lcd_puts("DHT ERR CHECKSUM");
+        //     break;
 
-        case (DHT_Error_Timeout):
-            lcd_goto(LCD_TEMP_CONST);
-            lcd_puts("DHT ERR TIMEOUT"); 
-            break;
+        // case (DHT_Error_Timeout):
+        //     lcd_goto(LCD_TEMP_CONST);
+        //     lcd_puts("DHT ERR TIMEOUT"); 
+        //     break;
     }
     temp = temp_d;
     hum = hum_d;

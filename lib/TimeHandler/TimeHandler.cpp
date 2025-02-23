@@ -1,9 +1,4 @@
-#include "../hd44780/hd44780.h"
-#include "../LCDHandler/LCDHandler.hpp"
-#include "../DHTHandler/DHTHandler.hpp"
-#include <stdlib.h>
-#include <avr/io.h>
-#include <avr/interrupt.h>
+#include "TimeHandler.hpp"
 
 // global variables for time management
 volatile uint8_t MSEC_CNT = 0;
@@ -16,20 +11,16 @@ uint8_t S_OLD = -1;
 uint8_t M_OLD = -1;
 uint8_t H_OLD = -1;
 
-uint8_t H = 0;
-uint8_t M = 0;
-uint8_t S = 0;
-
-uint16_t set_flag_after_milis_compare_value = 0;
-uint16_t set_flag_after_milis_counter_old = 0;
-bool set_flag_after_milis_running = false;
-
-uint16_t set_flag_after_milis_compare_value2 = 0;
-uint16_t set_flag_after_milis_counter_old2 = 0;
-bool set_flag_after_milis_running2 = false;
+extern volatile uint8_t H = 0;
+extern volatile uint8_t M = 0;
+extern volatile uint8_t S = 0;
 
 bool time_editing_engaged;
 double temp, hum;
+
+bool DHTSpoolUpTimerFlag = true;
+
+DelayHandler spoolUpDelayHandler = DelayHandler();
 
 
 //Timer1 initialization
@@ -111,6 +102,7 @@ void initTimeHandler(){
   init_timer1();
 }
 
+int i = 0;
 void manageTime() {
   //Stopping interrupts to assign variables
   cli();
@@ -155,30 +147,34 @@ void manageTime() {
     S_OLD = S;
     printTime(LCD_S, S);
 
-    if(S % 5 == 0){
+    // Allow for DHT to 'spool up' and fill it's arrays with temp and hum values
+    // During the first 10 seconds, DHTUpdate runs every second, after that, every 5 seconds
+    // Every 5 seconds, uC will make a decision whether to turn on/off lamp/humidifier
+    if(DHTSpoolUpTimerFlag) {
+      spoolUpDelayHandler.set_flag_after_seconds(10, DHTSpoolUpTimerFlag);
       DHTUpdate(temp, hum);
+    } else {
+      if(S % 5 == 0){
+        i++;
+        char ch[2];
+        DHTUpdate(temp, hum);
+        itoa(i, ch, 10);
+        lcd_goto(LCD_DEBUG_POS);
+        lcd_puts(ch);
+        if(temp < 27){
+          //Turn on lamp
+        } else {
+          //Turn off lamp
+        }
 
-      if(temp < 27){
-        //Turn on lamp
-      } else {
-        //Turn off lamp
-      }
-
-      if(hum < 70){
-        //Turn on humidifier
-      } else {
-        //Turn off humidifier
+        if(hum < 70){
+          //Turn on humidifier
+        } else {
+          //Turn off humidifier
+        }
       }
     }
-    
-    //Pump should start after the array with temp/hum values fills up, maybe embed it in an if to limit usage 1time/5s?
-    // if(IS_STARTING_CNT < TEMP_HUM_VALUES_SIZE){
-    //   managePump();
-    // } else {
-    //   IS_STARTING_CNT++;
-    // }
   }
-
 }
 
 // Timer1 output compare match A interrupt rutine
@@ -190,11 +186,13 @@ ISR(TIMER1_COMPA_vect) {
   S_CNT++;
   if(S_CNT >= 60) {
     S_CNT = 0;
-    M_CNT++;
+    // Prevents incrementing minutes and hours when in time editing mode
+    // Minutes will not be incremented when the counter reaches 60
+    if(!time_editing_engaged) M_CNT++;
   }
   if(M_CNT >= 60) {
     M_CNT = 0;
-    H_CNT++;
+    if(!time_editing_engaged) H_CNT++;
   }
   if(H_CNT >= 24) {
     H_CNT = 0;

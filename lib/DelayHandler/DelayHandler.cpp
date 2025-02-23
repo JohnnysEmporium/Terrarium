@@ -30,6 +30,11 @@ bool* DelayHandler::set_flag_after_milis(uint16_t milis, bool &flag) {
     return &set_flag_after_milis_running;
 }
 
+void DelayHandler::resetMilisCounter(){
+    set_flag_after_milis_running = false;
+    set_flag_after_milis_compare_value = 0;
+}
+
 bool* DelayHandler::set_flag_after_seconds(uint16_t seconds, bool &flag){
     if (!set_flag_after_seconds_running) {
         set_flag_after_seconds_running = true;
@@ -38,7 +43,7 @@ bool* DelayHandler::set_flag_after_seconds(uint16_t seconds, bool &flag){
     cli();
     uint8_t counter = S;
     sei();
-
+    char out[4];
     if (set_flag_after_seconds_compare_value == 0) {
         set_flag_after_seconds_running = false;
         flag = !flag;
@@ -49,8 +54,9 @@ bool* DelayHandler::set_flag_after_seconds(uint16_t seconds, bool &flag){
     set_flag_after_seconds_counter_old = counter;
 }
 
-void DelayHandler::resetSecondsTimer(){
+void DelayHandler::resetSecondsCounter(){
     set_flag_after_seconds_running = false;
+    set_flag_after_seconds_compare_value = 0;
 }
 
 // void wait(uint16_t milis) {
