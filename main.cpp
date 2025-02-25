@@ -4,21 +4,20 @@ extern "C" {
 }
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "lib/DHTHandler/DHTHandler.hpp"
 #include "lib/LCDHandler/LCDHandler.hpp"
-#include "lib/TimeHandler/TimeHandler.hpp"
 #include "lib/ButtonHandler/ButtonHandler.hpp"
+#include "lib/DHTHandler/DHTHandler.hpp"
+#include "lib/TimeHandler/TimeHandler.hpp"
 
-
-
+ButtonHandler buttonHandler;
 //Setting up necessary resources
 void setup() {
   initTimeHandler();
-  ButtonHandler buttonHandler = ButtonHandler();
+  buttonHandler = ButtonHandler();
   bool time_editing_engaged = buttonHandler.initButtonHandler();
   //passing time_editing_engaged by reference
   setTimeEditingEngaged(time_editing_engaged);
-  LCDInit();
+  LCDInit(buttonHandler);
   DHTInit();
   
   DDRD &= ~(1 << PIND0);
@@ -35,7 +34,8 @@ int main()
   while (1)
   {
     manageTime();
-    LCDOffTimer();
+    buttonHandler.buttonLoop();
+    // LCDOffTimer();
 
 
     // if(bit_is_clear(PIND, 0)){
@@ -51,3 +51,6 @@ int main()
 
   }
 }
+
+// TODO:  fix printTime in LCDHandler, are these many repetitions necessary? Maybe use h_disp[1] = buff; instead of strcat and \0
+//        stopMainPrint in LCDHandler is not reflecting changes from ButtonHandler

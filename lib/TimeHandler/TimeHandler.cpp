@@ -15,6 +15,14 @@ extern volatile uint8_t H = 0;
 extern volatile uint8_t M = 0;
 extern volatile uint8_t S = 0;
 
+extern uint8_t humidifierWorkingS = 0;
+extern uint8_t humidifierWorkingM = 0;
+extern uint8_t humidifierWorkingH = 0;
+extern uint8_t lampWorkingS = 0;
+extern uint8_t lampWorkingM = 0;
+extern uint8_t lampWorkingH = 0;
+
+
 bool time_editing_engaged;
 double temp, hum;
 
@@ -102,7 +110,7 @@ void initTimeHandler(){
   init_timer1();
 }
 
-int i = 0;
+
 void manageTime() {
   //Stopping interrupts to assign variables
   cli();
@@ -155,19 +163,21 @@ void manageTime() {
       DHTUpdate(temp, hum);
     } else {
       if(S % 5 == 0){
-        i++;
-        char ch[2];
         DHTUpdate(temp, hum);
-        itoa(i, ch, 10);
-        lcd_goto(LCD_DEBUG_POS);
-        lcd_puts(ch);
         if(temp < 27){
+          lampWorkingS += 5;
+          if(lampWorkingS == 60) lampWorkingM++;
+          if(lampWorkingH == 60) lampWorkingH++;
           //Turn on lamp
         } else {
+          
           //Turn off lamp
         }
 
         if(hum < 70){
+          humidifierWorkingS += 5;
+          if(humidifierWorkingS == 60) humidifierWorkingM++;
+          if(humidifierWorkingM == 60) humidifierWorkingH++;
           //Turn on humidifier
         } else {
           //Turn off humidifier
@@ -203,7 +213,7 @@ ISR(TIMER1_COMPA_vect) {
 MSEC_CNT relies on variable overflow.
 Once it reaches 255 it will reset back to 0.
 There's no need to zero this value explicitly as the timer0 is used only for wait routine
-  and counts miliseconds MSEC_CNT = 1 = 20ms
+  and counts miliseconds MSEC_CNT = 1 = 20ms (that's why in the DelayHandler it's divided by 20)
 */
 ISR(TIMER0_COMPA_vect) {
   MSEC_CNT++;

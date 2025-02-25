@@ -1,7 +1,7 @@
 #include "DHTHandler.hpp"
 
 // global variables for temp and hum average
-extern const int DHTArrSize = 10;
+const int DHTArrSize = 10;
 int temp_hum_run;
 int TEMP_VALUES[DHTArrSize] = {10};
 int HUM_VALUES[DHTArrSize] = {10};
@@ -68,14 +68,8 @@ void DHTUpdate(double& temp, double& hum){
             
             dtostrf(temperature[0],-4,1,temp_char);
             dtostrf(humidity[0],-4,1,hum_char);
-            lcd_goto(LCD_TEMP_CONST);
-            lcd_puts("T:");
-            lcd_goto(LCD_RH_CONST);
-            lcd_puts("RH:");
-            lcd_goto(LCD_TEMP);
-            lcd_puts(temp_char);
-            lcd_goto(LCD_HUM);
-            lcd_puts(hum_char);  
+            printTempAndHum(temp_char, hum_char);
+            
             break;
         
         //These are here for debugging, remove for final version.

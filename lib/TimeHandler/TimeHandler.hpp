@@ -1,21 +1,33 @@
 #ifndef TIME_HANDLER
 #define TIME_HANDLER
 
-#include "../LCDHandler/LCDHandler.hpp"
-#include "../hd44780/hd44780.h"
-#include "../LCDHandler/LCDHandler.hpp"
-#include "../DHTHandler/DHTHandler.hpp"
+//#include "../LCDHandler/LCDHandler.hpp"
+//#include "../LCDHandler/LCDHandler.hpp"
+//#include "../DHTHandler/DHTHandler.hpp"
 #include "../DelayHandler/DelayHandler.hpp"
+#include "../Enum/Enum.hpp"
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdint.h>
+
+//FORWARD DECLARATION
+void printTime();
+void printTime(int c, uint8_t val);
+void DHTUpdate(double& temp, double& hum);
+
 
 extern volatile uint8_t MSEC_CNT;
 extern volatile uint8_t S;
 extern volatile uint8_t M;
 extern volatile uint8_t H;
 
+extern uint8_t humidifierWorkingS;
+extern uint8_t humidifierWorkingM;
+extern uint8_t humidifierWorkingH;
+extern uint8_t lampWorkingS;
+extern uint8_t lampWorkingM;
+extern uint8_t lampWorkingH;
 
 void initTimeHandler();
 void setTimeEditingEngaged(bool& addr);

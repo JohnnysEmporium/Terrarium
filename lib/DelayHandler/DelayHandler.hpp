@@ -2,7 +2,13 @@
 #define DELAY_HANDLER
 
 #include <stdint.h>
-#include "../TimeHandler/TimeHandler.hpp"
+#//include "../TimeHandler/TimeHandler.hpp"
+
+//FORWARD DECLARATION
+void start_timer0();
+void pause_timer0();
+extern volatile uint8_t MSEC_CNT;
+extern volatile uint8_t S;
 
 class DelayHandler {
     private:

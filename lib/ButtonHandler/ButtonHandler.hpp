@@ -1,25 +1,33 @@
 #ifndef BUTTON_HANDLER
 #define BUTTON_HANDLER
 
-#include "../TimeHandler/TimeHandler.hpp"
-#include "../LCDHandler/LCDHandler.hpp"
+//#include "../TimeHandler/TimeHandler.hpp"
+//#include "../LCDHandler/LCDHandler.hpp"
 #include "../DelayHandler/DelayHandler.hpp"
+#include "../Enum/Enum.hpp"
+#include "../LCDHandler/LCDConstants.hpp"
 #include <stdint.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
+//FORWARD DECLARATION
+void incrementCounter(ptEnum counter);
+void LCDWakeUp();
+bool isLCDOn();
+void LCDGoTo(uint8_t pos);
+void LCDPuts(const char *s);
+void printTime();
+void printTime(int c, uint8_t val);
+void printStats();
+extern volatile uint8_t M;
+extern volatile uint8_t H;
+
 class ButtonHandler {
     private:
-        bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR;
-        bool *SET_FLAG_AFTER_MILIS_RUNNING_ADDR2;
-
-        DelayHandler delayHandlerButtonEngaged;
-        DelayHandler delayHandlerBlink;
-        DelayHandler delayHandlerTimeIncrement;
 
         bool time_increase_pressed; //Initialize/Declare the Pressed variable
         bool time_increase_delay_engaged;
-        bool time_editing_pressed;
+        bool editButtonPressed;
         bool is_editing_time;
         bool time_printed_after_edit;
 
@@ -28,7 +36,8 @@ class ButtonHandler {
 
         uint8_t time_editing_section;
 
-        bool blink_flag;
+        bool blinkFlag;
+        bool statsFlag;
 
         bool isTimeEditTimedOut();
         void resetTimeframeForTimeEdit();
@@ -39,6 +48,7 @@ class ButtonHandler {
         
     public:
         bool time_editing_engaged;
+        bool stopMainScreenPrinting;
         void buttonLoop();
         ButtonHandler();
         bool initButtonHandler();

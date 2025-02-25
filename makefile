@@ -6,20 +6,23 @@ LIB_DHT = ./lib/AVR-DHT/DHT
 LIB_DHT_H = ./lib/DHTHandler/DHTHandler
 LIB_HD = ./lib/hd44780/hd44780
 LIB_LCD_H = ./lib/LCDHandler/LCDHandler
+LIB_LCD_CONST_H = ./lib/LCDHandler/LCDConstants
 LIB_TIME_H = ./lib/TimeHandler/TimeHandler
 LIB_DELAY_H = ./lib/DelayHandler/DelayHandler
 LIB_BUTTON_H = ./lib/ButtonHandler/ButtonHandler
+
 
 # The headers files needed for building the application
 INCLUDE += -I.$(LIB_DHT)
 INCLUDE += -I.$(LIB_DHT_H)
 INCLUDE += -I.$(LIB_HD)
 INCLUDE += -I.$(LIB_LCD_H)
+INCLUDE += -I.$(LIB_LCD_CONST_H)
 INCLUDE += -I.$(LIB_TIME_H)
 INCLUDE += -I.$(LIB_DELAY_H)
 INCLUDE += -I.$(LIB_BUTTON_H)
 
-COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_TIME_H).o $(LIB_DELAY_H).o $(LIB_BUTTON_H).o
+COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_LCD_CONST_H).o $(LIB_TIME_H).o $(LIB_DELAY_H).o $(LIB_BUTTON_H).o
 
 #Main hex file path in windows format MAIN_HEX_PATH =
 MAIN_HEX_PATH = "D:/LocalRepo/workspace/Arduino IDE/Main/main.hex"
@@ -79,6 +82,10 @@ $(LIB_DHT_H).o: $(LIB_DHT_H).cpp $(LIB_DHT_H).hpp
 #LCD Handler
 $(LIB_LCD_H).o: $(LIB_LCD_H).cpp $(LIB_LCD_H).hpp
 	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_H).cpp
+
+#LCD Handler Constants
+$(LIB_LCD_CONST_H).o: $(LIB_LCD_CONST_H).cpp $(LIB_LCD_CONST_H).hpp
+	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_CONST_H).cpp
 
 #Time Handler - abandoned -Os because the compiler was causing problems with one of the functions
 # see ButtonHandler comment for more.
