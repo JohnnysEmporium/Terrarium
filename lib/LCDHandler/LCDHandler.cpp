@@ -7,15 +7,13 @@ DelayHandler delayHandler;
 bool *SET_FLAG_AFTER_SECONDS_RUNNING_LCD_TIMER_ADDR;
 bool turn_off_lcd = false;
 bool IS_LCD_ON;
-bool stopMainPrint;
 
-void LCDInit(ButtonHandler bh){
+void LCDInit(){
     lcd_init();
     LCDPutConstantSymbols();
     DDRC |= (1 << PC0);
     PORTC |= (1 << PC0);
     IS_LCD_ON = true;
-    stopMainPrint = bh.stopMainScreenPrinting;
 }
 
 void LCDPutConstantSymbols(){
@@ -104,7 +102,12 @@ void printTime(){
  */
 void printTime(int c, uint8_t val) {
   
-  if(!stopMainPrint){
+  if(stopMainScreenPrinting) {
+    lcd_goto(LCD_DEBUG_POS+0x01);
+    lcd_puts("B");
+  }
+
+  if(!stopMainScreenPrinting){
     lcd_goto(LCD_SEM_0);
     lcd_puts(":");
     lcd_goto(LCD_SEM_1);
@@ -169,7 +172,7 @@ void printTempAndHum(){
 }
 
 void printTempAndHum(char temp[], char hum[]){
-  if(!stopMainPrint){
+  if(!stopMainScreenPrinting){
     lcd_goto(LCD_TEMP_CONST);
     lcd_puts("T:");
     lcd_goto(LCD_RH_CONST);

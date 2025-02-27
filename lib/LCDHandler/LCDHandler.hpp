@@ -36,7 +36,7 @@ extern volatile uint8_t M;
 extern volatile uint8_t H;
 
 
-void LCDInit(ButtonHandler);
+void LCDInit();
 void LCDPutConstantSymbols();
 void LCDGoTo(uint8_t pos);
 void LCDPuts(const char *s);

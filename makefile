@@ -13,14 +13,14 @@ LIB_BUTTON_H = ./lib/ButtonHandler/ButtonHandler
 
 
 # The headers files needed for building the application
-INCLUDE += -I.$(LIB_DHT)
-INCLUDE += -I.$(LIB_DHT_H)
-INCLUDE += -I.$(LIB_HD)
-INCLUDE += -I.$(LIB_LCD_H)
-INCLUDE += -I.$(LIB_LCD_CONST_H)
-INCLUDE += -I.$(LIB_TIME_H)
-INCLUDE += -I.$(LIB_DELAY_H)
-INCLUDE += -I.$(LIB_BUTTON_H)
+INCLUDE_DHT = -I $(LIB_DHT)
+INCLUDE_DHT_H = -I $(LIB_DHT_H)
+INCLUDE_HD = -I $(LIB_HD)
+INCLUDE_LCD_H = -I $(LIB_LCD_H)
+INCLUDE_LCD_CONST_H = -I $(LIB_LCD_CONST_H)
+INCLUDE_TIME_H = -I $(LIB_TIME_H)
+INCLUDE_DELAY_H = -I $(LIB_DELAY_H)
+INCLUDE_BUTTON_H = -I $(LIB_BUTTON_H)
 
 COMPILED_LIBS = $(LIB_DHT).o $(LIB_HD).o $(LIB_DHT_H).o $(LIB_LCD_H).o $(LIB_LCD_CONST_H).o $(LIB_TIME_H).o $(LIB_DELAY_H).o $(LIB_BUTTON_H).o
 
@@ -69,43 +69,43 @@ SRC = $(MAIN_APP).cpp
 
 #DHT Library
 $(LIB_DHT).o: $(LIB_DHT).c $(LIB_DHT).h $(LIB_DHT)_settings.h
-	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT).c
+	$(CC) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT).c
 
 #LCD Library
 $(LIB_HD).o: $(LIB_HD).c $(LIB_HD).h $(LIB_HD)_settings.h
-	$(CC) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_HD).c
+	$(CC) $(DEFINE) $(CFLAGS) ./$@ $(LIB_HD).c
 
 #DHT Handler
 $(LIB_DHT_H).o: $(LIB_DHT_H).cpp $(LIB_DHT_H).hpp
-	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT_H).cpp
+	$(C++) $(DEFINE) $(CFLAGS) ./$@ $(LIB_DHT_H).cpp
 
 #LCD Handler
 $(LIB_LCD_H).o: $(LIB_LCD_H).cpp $(LIB_LCD_H).hpp
-	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_H).cpp
+	$(C++) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_H).cpp
 
 #LCD Handler Constants
 $(LIB_LCD_CONST_H).o: $(LIB_LCD_CONST_H).cpp $(LIB_LCD_CONST_H).hpp
-	$(C++) $(INCLUDE) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_CONST_H).cpp
+	$(C++) $(DEFINE) $(CFLAGS) ./$@ $(LIB_LCD_CONST_H).cpp
 
 #Time Handler - abandoned -Os because the compiler was causing problems with one of the functions
 # see ButtonHandler comment for more.
-$(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp $(LIB_LCD_H).o
-	$(C++) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_TIME_H).cpp
+$(LIB_TIME_H).o: $(LIB_TIME_H).cpp $(LIB_TIME_H).hpp
+	$(C++) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_TIME_H).cpp
 
 #Delay Handler
-$(LIB_DELAY_H).o: $(LIB_DELAY_H).cpp $(LIB_DELAY_H).hpp $(LIB_TIME_H).o
-	$(CC) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_DELAY_H).cpp
+$(LIB_DELAY_H).o: $(LIB_DELAY_H).cpp $(LIB_DELAY_H).hpp
+	$(CC) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_DELAY_H).cpp
 
 #Button Library - same as above
-$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp $(LIB_TIME_H).o $(LIB_LCD_H).o $(LIB_DELAY_H).o
-	$(CC) $(INCLUDE) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_BUTTON_H).cpp
+$(LIB_BUTTON_H).o: $(LIB_BUTTON_H).cpp $(LIB_BUTTON_H).hpp
+	$(CC) $(DEFINE) -mmcu=atmega328p -g -O2 -c -o ./$@ $(LIB_BUTTON_H).cpp
 
 #Main
 $(MAIN_APP).o: $(SRC) $(COMPILED_LIBS)
-	$(C++) $^ $(INCLUDE) $(DEFINE) $(MAINCFLAGS) $@
+	$(C++) $^ $(DEFINE) $(MAINCFLAGS) $@
 
-$(MAIN_APP).elf: $(MAIN_APP).o $(COMPILED_LIBS)
-	$(C++) $(SRC) $(COMPILED_LIBS) $(INCLUDE) $(LFLAGS) $@
+$(MAIN_APP).elf: $(MAIN_APP).o
+	$(C++) $(SRC) $(COMPILED_LIBS) $(LFLAGS) $@
 
 build: $(MAIN_APP).elf
 	$(OBJCOPY) $(HFLAGS) $< $(MAIN_APP).hex

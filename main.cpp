@@ -17,7 +17,7 @@ void setup() {
   bool time_editing_engaged = buttonHandler.initButtonHandler();
   //passing time_editing_engaged by reference
   setTimeEditingEngaged(time_editing_engaged);
-  LCDInit(buttonHandler);
+  LCDInit();
   DHTInit();
   
   DDRD &= ~(1 << PIND0);

@@ -11,8 +11,7 @@ ButtonHandler::ButtonHandler():
   timeframe_for_time_edit_s_value_old(-1),
   time_editing_section(0),
   blinkFlag(false),
-  statsFlag(false),
-  stopMainScreenPrinting(false)
+  statsFlag(false)
   {
     initButtonHandler();
   }
@@ -27,6 +26,8 @@ DelayHandler DH_EditButtonLongPress = DelayHandler();
 bool isShortPress = false;
 bool isLongPress = false;
 bool wasLCDWakeUp = false;
+bool timeEditButtonLoopRun = false;
+extern bool stopMainScreenPrinting = false;
 uint8_t pressTime = 0;
 
 
@@ -104,6 +105,7 @@ bool isEditButtonPressed() {
 void ButtonHandler::timeEditButtonLoop(){
 
   if(isEditButtonPressed()){
+    timeEditButtonLoopRun = false;
     bool LCDOn = isLCDOn();
     
     if(!LCDOn){
@@ -113,7 +115,7 @@ void ButtonHandler::timeEditButtonLoop(){
 
     if(!wasLCDWakeUp){
       editButtonPressed = true;
-      DH_EditButtonShortPress.set_flag_after_milis(200, isShortPress);
+      DH_EditButtonShortPress.set_flag_after_milis(50, isShortPress);
       DH_EditButtonLongPress.set_flag_after_milis(2000, isLongPress);
 
       if(isLongPress){
@@ -125,23 +127,17 @@ void ButtonHandler::timeEditButtonLoop(){
     printStats();
     stopMainScreenPrinting = true;
   
-  } else if(editButtonPressed) {
+  } else if(editButtonPressed && !timeEditButtonLoopRun) {
+    timeEditButtonLoopRun = true;
     DH_EditButtonShortPress.resetMilisCounter();
     DH_EditButtonLongPress.resetMilisCounter();
     editButtonPressed = false;
     wasLCDWakeUp = false;
     isShortPress = false;
     isLongPress = false;
-    LCDGoTo(LCD_DEBUG_POS);
-    LCDPuts("A");
+    // LCDGoTo(LCD_DEBUG_POS);
+    // LCDPuts("A");
   }
-  
-  
-
-
-
-
-
   
   // if (isEditButtonPressed()) {
     

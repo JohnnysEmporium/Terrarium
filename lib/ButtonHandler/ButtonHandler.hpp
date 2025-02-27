@@ -47,13 +47,13 @@ class ButtonHandler {
         void timeEditBlink();
         
     public:
-        bool time_editing_engaged;
-        bool stopMainScreenPrinting;
+        bool time_editing_engaged; 
         void buttonLoop();
         ButtonHandler();
         bool initButtonHandler();
 };
 
+extern bool stopMainScreenPrinting;
 
 
 
