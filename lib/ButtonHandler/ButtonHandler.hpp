@@ -11,13 +11,13 @@
 #include <avr/interrupt.h>
 
 //FORWARD DECLARATION
-void incrementCounter(ptEnum counter);
+void incrementCounter(ptEnum);
 void LCDWakeUp();
 bool isLCDOn();
 void LCDGoTo(uint8_t pos);
 void LCDPuts(const char *s);
-void printTime();
-void printTime(int c, uint8_t val);
+void setTimeToPrint();
+void setTimeToPrint(ptEnum);
 void printStats();
 extern volatile uint8_t M;
 extern volatile uint8_t H;
@@ -34,7 +34,7 @@ class ButtonHandler {
         uint8_t timeframe_for_time_edit;
         uint8_t timeframe_for_time_edit_s_value_old;
 
-        uint8_t time_editing_section;
+        ptEnum time_editing_section;
 
         bool blinkFlag;
         bool statsFlag;
@@ -45,6 +45,7 @@ class ButtonHandler {
         void timeIncrementButtonLoop();
         void timeEditButtonLoop();
         void timeEditBlink();
+        void handleAndResetEditButton();
         
     public:
         bool time_editing_engaged; 
@@ -53,7 +54,7 @@ class ButtonHandler {
         bool initButtonHandler();
 };
 
-extern bool stopMainScreenPrinting;
+extern bool printStatsBool;
 
 
 

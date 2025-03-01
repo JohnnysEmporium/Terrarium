@@ -169,21 +169,21 @@ void timeEditBlink(){
           break;
       }
 
-      printTime(time_editing_section, time_value_to_restore);
+      setTimeToPrint(time_editing_section, time_value_to_restore);
       SET_FLAG_AFTER_MILIS_RUNNING_ADDR = delayHandler1.set_flag_after_milis(500, blink_flag);
     }
 
     if(isTimeEditTimedOut()){
       /*
       Found during button testing:
-      Due to compilation optimization, directly using s_value in printTime, exacly on position 2,
+      Due to compilation optimization, directly using s_value in setTimeToPrint, exacly on position 2,
         leads to extended amount of time waiting for set_flag_after_milis function, this causes 
         the program to enter time editing mode after 2-4x more time.
       No idea why/how that happens and honestly don't care at this point. Replacing -Os with -O2...
       */
-      printTime(LCD_H, H);
-      printTime(LCD_M, M);
-      printTime(LCD_S, S);
+      setTimeToPrint(LCD_H, H);
+      setTimeToPrint(LCD_M, M);
+      setTimeToPrint(LCD_S, S);
       blink_flag = false;
       time_editing_engaged = false;
     }

@@ -42,12 +42,11 @@ void LCDGoTo(uint8_t pos);
 void LCDPuts(const char *s);
 void LCDOffTimer();
 void LCDWakeUp();
-void printTime();
-void printTime(int c, uint8_t val);
-void printTempAndHum();
-void printTempAndHum(char[], char[]);
+void setTimeToPrint(char[]);
+void setTempAndHumToPrint();
 void printMainScreen();
 void printStats();
 bool isLCDOn();
+void printScreen();
 
 #endif

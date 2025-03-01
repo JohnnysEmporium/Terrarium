@@ -142,18 +142,18 @@ void manageTime() {
 
   if(H_OLD != H){
     H_OLD = H;
-    printTime(LCD_H, H);
+    setTimeToPrint(LCD_H);
   }
   
   if(M_OLD != M){
     M_OLD = M;
-    printTime(LCD_M, M);
+    setTimeToPrint(LCD_M);
   }
 
   if(S_OLD != S){
     
     S_OLD = S;
-    printTime(LCD_S, S);
+    setTimeToPrint(LCD_S);
 
     // Allow for DHT to 'spool up' and fill it's arrays with temp and hum values
     // During the first 10 seconds, DHTUpdate runs every second, after that, every 5 seconds

@@ -6,7 +6,7 @@
 //#include "../LCDHandler/LCDHandler.hpp"
 #include <stdlib.h>
 
-void printTempAndHum(char[], char[]);
+void setTempAndHumToPrint(char[], char[]);
 
 extern const int DHTArrSize;
 extern char temp_char[5];

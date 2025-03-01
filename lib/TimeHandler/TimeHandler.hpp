@@ -12,8 +12,8 @@
 #include <stdint.h>
 
 //FORWARD DECLARATION
-void printTime();
-void printTime(int c, uint8_t val);
+void setTimeToPrint();
+void setTimeToPrint(ptEnum);
 void DHTUpdate(double& temp, double& hum);
 
 

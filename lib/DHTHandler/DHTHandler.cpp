@@ -65,11 +65,8 @@ void DHTUpdate(double& temp, double& hum){
             temp_d = (double)temp_avg / 10.0;
             hum_d = (double)hum_avg / 10.0;
             
-            
             dtostrf(temperature[0],-4,1,temp_char);
             dtostrf(humidity[0],-4,1,hum_char);
-            printTempAndHum(temp_char, hum_char);
-            
             break;
         
         //These are here for debugging, remove for final version.
@@ -83,6 +80,4 @@ void DHTUpdate(double& temp, double& hum){
         //     lcd_puts("DHT ERR TIMEOUT"); 
         //     break;
     }
-    temp = temp_d;
-    hum = hum_d;
 };

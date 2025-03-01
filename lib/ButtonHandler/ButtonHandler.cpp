@@ -1,4 +1,5 @@
 #include "ButtonHandler.hpp"
+#include <stdlib.h> 
 
 ButtonHandler::ButtonHandler():
   time_increase_pressed(false), //Initialize/Declare the Pressed variable
@@ -9,7 +10,7 @@ ButtonHandler::ButtonHandler():
   time_printed_after_edit(false),
   timeframe_for_time_edit(5),
   timeframe_for_time_edit_s_value_old(-1),
-  time_editing_section(0),
+  time_editing_section(LCD_H),
   blinkFlag(false),
   statsFlag(false)
   {
@@ -20,15 +21,15 @@ DelayHandler DH_TimeEditButtonEngaged = DelayHandler();
 DelayHandler DH_StatsButtonEngaged = DelayHandler();
 DelayHandler DH_Blink = DelayHandler();
 DelayHandler DH_TimeIncrement = DelayHandler();
-DelayHandler DH_EditButtonShortPress = DelayHandler();
 DelayHandler DH_EditButtonLongPress = DelayHandler();
 
 bool isShortPress = false;
 bool isLongPress = false;
 bool wasLCDWakeUp = false;
-bool timeEditButtonLoopRun = false;
-extern bool stopMainScreenPrinting = false;
+bool isEditButtonReset = false;
+extern bool printStatsBool = false;
 uint8_t pressTime = 0;
+bool timeEditFirstRun = true;
 
 
 bool ButtonHandler::initButtonHandler() {
@@ -63,15 +64,13 @@ void ButtonHandler::resetTimeframeForTimeEdit(){
 }
 
 void ButtonHandler::timeIncrementBasedOnSection(){
-  incrementCounter(static_cast<ptEnum>(time_editing_section));
+  incrementCounter(time_editing_section);
 }
 
 void ButtonHandler::timeIncrementButtonLoop() {
 
   //Check if PIND2 is clear
   if (!(PIND & (1<<PD2)) && time_editing_engaged) {
-  
-    LCDWakeUp();
 
     //Make sure that the button was released first
     if (!time_increase_pressed) {
@@ -101,83 +100,65 @@ bool isEditButtonPressed() {
   return (!(PINC & (1<<PC5)));
 }
 
-//TEST METHOD FOR TIME EDITION
 void ButtonHandler::timeEditButtonLoop(){
+  if(!isEditButtonPressed() && !isEditButtonReset){
+    handleAndResetEditButton();
+    return;
+  } else if (!isEditButtonPressed()){
+    return;
+  }
 
-  if(isEditButtonPressed()){
-    timeEditButtonLoopRun = false;
-    bool LCDOn = isLCDOn();
-    
-    if(!LCDOn){
-      LCDWakeUp();
-      wasLCDWakeUp = true;
+  isEditButtonReset = false;
+  bool LCDOn = isLCDOn();
+  isShortPress = true;
+  
+  //Prevents changing the screens when waking up LCD with initial button press
+  if(!LCDOn){
+    LCDWakeUp();
+    wasLCDWakeUp = true;
+  } else {
+    wasLCDWakeUp = false;
+  }
+
+  if(!wasLCDWakeUp){
+    editButtonPressed = true;
+    isShortPress = true;
+    DH_EditButtonLongPress.set_flag_after_milis(2000, isLongPress);
+
+    if(isLongPress){
+      time_editing_engaged = true;
+      timeEditFirstRun = true;
     }
+  }  
+}
 
-    if(!wasLCDWakeUp){
-      editButtonPressed = true;
-      DH_EditButtonShortPress.set_flag_after_milis(50, isShortPress);
-      DH_EditButtonLongPress.set_flag_after_milis(2000, isLongPress);
+void ButtonHandler::handleAndResetEditButton(){
+    if(isShortPress && !time_editing_engaged){
+      printStatsBool = true;
+    } 
 
-      if(isLongPress){
-        time_editing_engaged = true;
+    if (time_editing_engaged){
+
+      if(timeEditFirstRun){
+        time_editing_section = static_cast<ptEnum>(0);
+        timeEditFirstRun = false;
+      
+      } else if(isShortPress){
+        resetTimeframeForTimeEdit();
+        setTimeToPrint();
+        int temp = static_cast<uint8_t>(time_editing_section);
+        temp++;
+        temp = temp % 3;
+        time_editing_section = static_cast<ptEnum>(temp);
       }
     }
 
-  } else if(editButtonPressed && isShortPress && !time_editing_engaged && !stopMainScreenPrinting){
-    printStats();
-    stopMainScreenPrinting = true;
-  
-  } else if(editButtonPressed && !timeEditButtonLoopRun) {
-    timeEditButtonLoopRun = true;
-    DH_EditButtonShortPress.resetMilisCounter();
     DH_EditButtonLongPress.resetMilisCounter();
     editButtonPressed = false;
     wasLCDWakeUp = false;
     isShortPress = false;
     isLongPress = false;
-    // LCDGoTo(LCD_DEBUG_POS);
-    // LCDPuts("A");
-  }
-  
-  // if (isEditButtonPressed()) {
-    
-    
-  //   if(!LCDOn){
-  //     LCDWakeUp();
-  //   } else if(LCDOn) {
-  //     editButtonPressed = true;
-  //     DH_EditButtonShortPress.set_flag_after_milis(20, isShortPress);
-
-  //     // #############################################################################################################################################
-  //     //If not in edition time, enter it after given delay
-  //     //time_editing_pressed ensures button was depressed first, before f.e. changing edit section
-  //     if (!time_editing_engaged) {
-  //       //Set flag that will tell the buttonLoop() to blink
-  //       editButtonPressed = true;
-  //       DH_TimeEditButtonEngaged.set_flag_after_milis(2000, time_editing_engaged);
-  //       time_editing_section = 0;
-  //     } else if(time_editing_engaged && !editButtonPressed) {
-  //       editButtonPressed = true;
-  //       time_editing_section++;
-  //       time_editing_section = time_editing_section % 3;
-  //       //Printing all time values when changing edit section. Without it when section blinks and than changes it can be left empty.
-  //       printTime();
-  //       timeframe_for_time_edit = 5;
-  //     // #############################################################################################################################################     
-  //     }
-
-  //     if (isShortPress && !editButtonPressed) {
-  //       isShortPress = false;
-  //       printStats();
-  //     }
-  //   }
-  // //Reset timer running bool for if
-  // } else {
-  //   DH_TimeEditButtonEngaged.resetMilisCounter();
-  //   editButtonPressed = false;
-  //   isShortPress = false;
-  // }
-  
+    isEditButtonReset = true;
 }
 
 void ButtonHandler::timeEditBlink(){
@@ -207,39 +188,19 @@ void ButtonHandler::timeEditBlink(){
     }
 
     if(blinkFlag){
-      
-      uint8_t time_value_to_restore;
-      switch(time_editing_section){
-        case LCD_H:
-          cli();
-          time_value_to_restore = H;
-          sei();
-          break;
-        case LCD_M:
-          cli();
-          time_value_to_restore = M;
-          sei();
-          break;
-        case LCD_S:
-          time_value_to_restore = S;
-          break;
-      }
-
-      printTime(time_editing_section, time_value_to_restore);
+      setTimeToPrint(time_editing_section);
       DH_Blink.set_flag_after_milis(500, blinkFlag);
     }
 
     if(isTimeEditTimedOut()){
       /*
       Found during button testing:
-      Due to compilation optimization, directly using s_value in printTime, exacly on position 2,
+      Due to compilation optimization, directly using s_value in setTimeToPrint, exacly on position 2,
         leads to extended amount of time waiting for set_flag_after_milis function, this causes 
         the program to enter time editing mode after 2-4x more time.
       No idea why/how that happens and honestly don't care at this point. Replacing -Os with -O2...
       */
-      printTime(LCD_H, H);
-      printTime(LCD_M, M);
-      printTime(LCD_S, S);
+      setTimeToPrint();
       blinkFlag = false;
       time_editing_engaged = false;
     }

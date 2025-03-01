@@ -34,14 +34,15 @@ int main()
   while (1)
   {
     manageTime();
+    printScreen();
     buttonHandler.buttonLoop();
     // LCDOffTimer();
 
 
     // if(bit_is_clear(PIND, 0)){
-    //   printTime(0, 20);
+    //   setTimeToPrint(0, 20);
     // } else {
-    //   printTime(0,10);
+    //   setTimeToPrint(0,10);
     // }
 
     // PORTB ^= (1 << PINB1);
@@ -52,5 +53,5 @@ int main()
   }
 }
 
-// TODO:  fix printTime in LCDHandler, are these many repetitions necessary? Maybe use h_disp[1] = buff; instead of strcat and \0
+// TODO:  fix setTimeToPrint in LCDHandler, are these many repetitions necessary? Maybe use h_disp[1] = buff; instead of strcat and \0
 //        stopMainPrint in LCDHandler is not reflecting changes from ButtonHandler
