@@ -28,6 +28,12 @@ extern "C" {
 // FORWARD DECLARATION
 extern char temp_char[5];
 extern char hum_char[5];
+extern uint8_t humidifierWorkingS;
+extern uint8_t humidifierWorkingM;
+extern uint8_t humidifierWorkingH;
+extern uint8_t lampWorkingS;
+extern uint8_t lampWorkingM;
+extern uint8_t lampWorkingH;
 extern volatile uint8_t S;
 extern volatile uint8_t M;
 extern volatile uint8_t H;

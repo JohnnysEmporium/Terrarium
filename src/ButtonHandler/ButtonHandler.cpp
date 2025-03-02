@@ -1,24 +1,33 @@
 #include "ButtonHandler.hpp"
 #include <stdlib.h> 
 
+DelayHandler DH_IncrementButtonSpeed = DelayHandler();
 DelayHandler DH_TimeEditButtonEngaged = DelayHandler();
 DelayHandler DH_StatsButtonEngaged = DelayHandler();
 DelayHandler DH_Blink = DelayHandler();
-DelayHandler DH_TimeIncrement = DelayHandler();
+DelayHandler DH_IncrementButtonLongPress = DelayHandler();
 DelayHandler DH_EditButtonLongPress = DelayHandler();
 
 extern bool printStatsBool = false;
-extern bool time_editing_engaged = false;
-bool isShortPress = false;
-bool isLongPress = false;
-bool wasLCDWakeUp = false;
+extern bool timeEditingEngaged = false;
+bool isIncrementShortPress = false;
+bool isEditShortPress = false;
+bool isIncrementLongPress = false;
+bool isEditLongPress = false;
+bool isIncrementButtonReset = false;
 bool isEditButtonReset = false;
-bool timeEditFirstRun = true;
-bool time_printed_after_edit = false;
+bool incrementFirstRun = false;
+bool editFirstRun = true;
 bool statsFlag = false;
 bool blinkFlag = false;
+
+bool wasLCDWakeUp = false;
+
+
+bool time_printed_after_edit = false;
+
 bool is_editing_time = false;
-bool time_increase_delay_engaged = false;
+bool timeIncreaseDelayEngaged = false;
 bool time_increase_pressed = false;
 
 ptEnum time_editing_section = LCD_H;
@@ -67,75 +76,87 @@ bool isTimeEditTimedOut(){
   }
 }
 
-void handleAndResetEditButton(){
-  if(isShortPress && !time_editing_engaged){
-    printStatsBool = true;
-  } 
+void handleAndResetIncrementButton(bool reset) {
+  if(isIncrementLongPress && timeEditingEngaged){
+    isIncrementShortPress = false;
+    DH_IncrementButtonSpeed.set_flag_after_milis(100, incrementFirstRun);
 
-  if (time_editing_engaged){
-
-    if(timeEditFirstRun){
-      time_editing_section = static_cast<ptEnum>(0);
-      timeEditFirstRun = false;
-    
-    } else if(isShortPress){
+    if(incrementFirstRun){
+      incrementFirstRun = false;
+      timeIncrementBasedOnSection();
       resetTimeframeForTimeEdit();
-      setTimeToPrint();
-      int temp = static_cast<uint8_t>(time_editing_section);
-      temp++;
-      temp = temp % 3;
-      time_editing_section = static_cast<ptEnum>(temp);
     }
+
+  } else if(isIncrementShortPress  && timeEditingEngaged) {
+    timeIncrementBasedOnSection();
+    resetTimeframeForTimeEdit();
   }
 
-  DH_EditButtonLongPress.resetMilisCounter();
-  wasLCDWakeUp = false;
-  isShortPress = false;
-  isLongPress = false;
-  isEditButtonReset = true;
+  if(reset){
+    DH_IncrementButtonLongPress.resetMilisCounter();
+    isIncrementButtonReset = true;
+    isIncrementShortPress = false;
+    isIncrementLongPress = false;
+  }
+}
+
+void handleAndResetEditButton(bool reset){
+  if(isEditLongPress && !printStatsBool){
+    resetTimeframeForTimeEdit();
+    timeEditingEngaged = true;
+    time_editing_section = static_cast<ptEnum>(0);
+
+  } else if(isEditShortPress && timeEditingEngaged){
+    resetTimeframeForTimeEdit();
+    setTimeToPrint();
+    int temp = static_cast<uint8_t>(time_editing_section);
+    temp++;
+    temp = temp % 3;
+    time_editing_section = static_cast<ptEnum>(temp);
+ 
+  } else if(isEditShortPress && !timeEditingEngaged){
+    printStatsBool = true;
+  }
+
+  if(reset){
+    DH_EditButtonLongPress.resetMilisCounter();
+    wasLCDWakeUp = false;
+    isEditShortPress = false;
+    isEditLongPress = false;
+    isEditButtonReset = true;
+  }
 }
 
 void timeIncrementButtonLoop() {
-
-  if(!isIncrementButtonPressed()) return;
+  if(!isIncrementButtonPressed() && !isIncrementButtonReset) {
+    handleAndResetIncrementButton(true);
+    return;
+  } else if (!isIncrementButtonPressed()){
+    return;
+  }
   
-  if (time_editing_engaged) {
-
-    //Make sure that the button was released first
-    if (!time_increase_pressed) {
-      // LCDOn();
-      time_increase_pressed = true;
-      timeIncrementBasedOnSection();
-
-    } else if(time_increase_pressed && !time_increase_delay_engaged){
-      DH_TimeIncrement.set_flag_after_milis(200, time_increase_delay_engaged);
-    
-    } else if(time_increase_pressed && time_increase_delay_engaged){
-      time_increase_delay_engaged = false;
-      timeIncrementBasedOnSection();
-
-    }
-    resetTimeframeForTimeEdit();
-
-  } else {
-    // LCDOff();
-    time_increase_delay_engaged = false;
-    time_increase_pressed = false;
-    is_editing_time = false;
+  isIncrementShortPress = true;
+  isIncrementButtonReset = false;
+  DH_IncrementButtonLongPress.set_flag_after_milis(1000, isIncrementLongPress);
+  
+  if(isIncrementLongPress){
+    DH_IncrementButtonLongPress.resetMilisCounter();
+    handleAndResetIncrementButton(false);
   }
 }
 
 void timeEditButtonLoop(){
   if(!isEditButtonPressed() && !isEditButtonReset){
-    handleAndResetEditButton();
+    handleAndResetEditButton(true);
     return;
   } else if (!isEditButtonPressed()){
     return;
   }
 
+  //if this variable is set to true, it means that button was depressed
   isEditButtonReset = false;
   bool LCDOn = isLCDOn();
-  isShortPress = true;
+  isEditShortPress = true;
   
   //Prevents changing the screens when waking up LCD with initial button press
   if(!LCDOn){
@@ -146,18 +167,17 @@ void timeEditButtonLoop(){
   }
 
   if(!wasLCDWakeUp){
-    isShortPress = true;
-    DH_EditButtonLongPress.set_flag_after_milis(2000, isLongPress);
-
-    if(isLongPress){
-      time_editing_engaged = true;
-      timeEditFirstRun = true;
+    DH_EditButtonLongPress.set_flag_after_milis(2000, isEditLongPress);
+    if(isEditLongPress) {
+      DH_EditButtonLongPress.resetMilisCounter();
+      handleAndResetEditButton(false);
     }
+    
   }  
 }
 
 void timeEditBlink(){
-  if(time_editing_engaged){
+  if(timeEditingEngaged){
 
     LCDWakeUp();
 
@@ -197,7 +217,7 @@ void timeEditBlink(){
       */
       setTimeToPrint();
       blinkFlag = false;
-      time_editing_engaged = false;
+      timeEditingEngaged = false;
     }
   }
 }

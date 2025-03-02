@@ -133,60 +133,40 @@ void printTempAndHum(){
   lcd_puts(hum_char);  
 }
 
-void printTime() {
+char* intToPrintableTime(uint8_t timeInt) {
+  static char timeChar[4];
+
+  if (timeInt < 10) {
+      timeChar[0] = '0';
+      itoa(timeInt, &timeChar[1], 10);
+  } else {
+      itoa(timeInt, timeChar, 10);
+  }
+  return timeChar;
+}
+
+void printTime(uint8_t pos, uint8_t timeValue){
+  lcd_goto(pos);
+  lcd_puts(intToPrintableTime(timeValue));
+}
+
+void printMainScreenTime() {
   lcd_goto(LCD_SEM_0);
   lcd_puts(":");
   lcd_goto(LCD_SEM_1);
   lcd_puts(":");
 
-  
-    char buf[8];
-
   if(PRINT_HOURS){
-    itoa(H, buf, 10);
-    if (H < 10) {
-      char h_disp[3];
-      h_disp[0] = '0';
-      h_disp[1] = '\0';
-      strcat(h_disp, buf);
-      lcd_goto(LCD_H_POS);
-      lcd_puts(h_disp);
-    } else {
-      lcd_goto(LCD_H_POS);
-      lcd_puts(buf);
-    }
+    printTime(LCD_H_POS, H);
     PRINT_HOURS = false;
   }
 
   if(PRINT_MINUTES){
-    itoa(M, buf, 10);
-    if (M < 10) {
-      char m_disp[3];
-      m_disp[0] = '0';
-      m_disp[1] = '\0';
-      strcat(m_disp, buf);
-      lcd_goto(LCD_M_POS);
-      lcd_puts(m_disp);
-    } else {
-      lcd_goto(LCD_M_POS);
-      lcd_puts(buf);
-    }
-    PRINT_MINUTES = false;
+    printTime(LCD_M_POS, M);
   }
 
   if(PRINT_SECONDS){
-    itoa(S, buf, 10);
-    if (S < 10) {  
-      char s_disp[3];
-      s_disp[0] = '0';
-      s_disp[1] = '\0';
-      strcat(s_disp, buf);
-      lcd_goto(LCD_S_POS);
-      lcd_puts(s_disp);
-    } else {
-      lcd_goto(LCD_S_POS);
-      lcd_puts(buf);
-    }
+    printTime(LCD_S_POS, S);
     PRINT_SECONDS = false;
   }
 }
@@ -194,7 +174,23 @@ void printTime() {
 void printStats() {
   lcd_goto(0x00);
   lcd_puts("Lamp_t:");
-  lcd_goto(0x08);
+  printTime(0x08, lampWorkingH);
+  lcd_goto(0x0A);
+  lcd_puts(":");
+  printTime(0x0B, lampWorkingM);
+  lcd_goto(0xD);
+  lcd_puts(":");
+  printTime(0xE, lampWorkingS);
+
+  lcd_goto(0x40);
+  lcd_puts("Humid_t:");
+  printTime(0x48, humidifierWorkingH);
+  lcd_goto(0x4A);
+  lcd_puts(":");
+  printTime(0x4B, humidifierWorkingM);
+  lcd_goto(0x4D);
+  lcd_puts(":");
+  printTime(0x4E, humidifierWorkingS);
   // lcd_puts();
 }
 
@@ -215,10 +211,10 @@ void printScreen(){
   } else {
     if(printFullTIme){
       setTimeToPrint();
-      printTime();
+      printMainScreenTime();
     
     } else {
-      printTime();
+      printMainScreenTime();
     }
     
     printFullTIme = false;

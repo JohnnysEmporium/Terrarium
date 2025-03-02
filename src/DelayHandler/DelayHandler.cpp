@@ -12,7 +12,7 @@ DelayHandler::DelayHandler():
 bool* DelayHandler::set_flag_after_milis(uint16_t milis, bool &flag) {
     if (!set_flag_after_milis_running) {
         set_flag_after_milis_running = true;
-        set_flag_after_milis_compare_value = milis / 20 + 1;
+        set_flag_after_milis_compare_value = (milis / 20) + 1;
     }
     pause_timer0();
     uint8_t counter = MSEC_CNT;

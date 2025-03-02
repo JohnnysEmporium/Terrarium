@@ -26,7 +26,7 @@ bool initButtonHandler();
 void buttonLoop();
 
 extern bool printStatsBool;
-extern bool time_editing_engaged;
+extern bool timeEditingEngaged;
 
 #endif 
 // BUTTON_HANDLER

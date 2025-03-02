@@ -23,7 +23,7 @@ extern uint8_t lampWorkingM = 0;
 extern uint8_t lampWorkingH = 0;
 
 
-extern bool time_editing_engaged;
+extern bool timeEditingEngaged;
 double temp, hum;
 
 bool DHTSpoolUpTimerFlag = true;
@@ -46,7 +46,7 @@ void init_timer1() {
 }
 
 void setTimeEditingEngaged(bool& addr){
-  time_editing_engaged = addr;
+  timeEditingEngaged = addr;
 }
 
 void pause_timer1() {
@@ -125,13 +125,13 @@ void manageTime() {
   // if (S >= 60) {
   //   cli();
   //   S_CNT = 0;
-  //   // if(!time_editing_engaged) M_CNT++;
+  //   // if(!timeEditingEngaged) M_CNT++;
   //   sei();
   // }
   // if (M >= 60) {
   //   cli();
   //   M_CNT = 0;
-  //   // if(!time_editing_engaged) H_CNT++;
+  //   // if(!timeEditingEngaged) H_CNT++;
   //   sei();
   // }
   // if (H >= 24) {
@@ -198,11 +198,11 @@ ISR(TIMER1_COMPA_vect) {
     S_CNT = 0;
     // Prevents incrementing minutes and hours when in time editing mode
     // Minutes will not be incremented when the counter reaches 60
-    if(!time_editing_engaged) M_CNT++;
+    if(!timeEditingEngaged) M_CNT++;
   }
   if(M_CNT >= 60) {
     M_CNT = 0;
-    if(!time_editing_engaged) H_CNT++;
+    if(!timeEditingEngaged) H_CNT++;
   }
   if(H_CNT >= 24) {
     H_CNT = 0;

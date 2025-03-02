@@ -13,7 +13,7 @@ extern "C" {
 //Setting up necessary resources
 void setup() {
   initTimeHandler();
-  //passing time_editing_engaged by reference
+  //passing timeEditingEngaged by reference
   initButtonHandler();
   LCDInit();
   DHTInit();
@@ -52,5 +52,7 @@ int main()
 }
 
 // TODO:  fix setTimeToPrint in LCDHandler, are these many repetitions necessary? Maybe use h_disp[1] = buff; instead of strcat and \0
-//        fix time increment - it goes too fast
-//        declassify button handler, clear up unnecessary defined variables in hpp, ask gtp what should be in hpp and what not
+//        Someday, in the future, create a Button class, both increment and edit have the same mechanisms - no reason for it, just make it prettier
+//            Also, optimize DelayHandler - set_flag_after_milis is not accurate, it takes longer than milisecond for its counter to decrement,
+//            therefore if we put f.e. 2000ms as 1st parameter, it in fact will be smth around 3000ms. 
+//            Additionally, fix the way it's called, now, it's executing unnecessary math, instead of just storing the 1st parameter in a variable.
