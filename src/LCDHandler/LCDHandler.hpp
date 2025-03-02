@@ -2,16 +2,13 @@
 #define LCD_HANDLER
 
 extern "C" {
-    #include "../hd44780/hd44780.h"
+    #include "../../lib/hd44780/hd44780.h"
 }
 #include "../Enum/Enum.hpp"
-#include "avr\sfr_defs.h"
-// #include "LCDHandler.hpp"
 #include "../DelayHandler/DelayHandler.hpp"
 #include "../ButtonHandler/ButtonHandler.hpp"
 #include "LCDConstants.hpp"
-// #include "../TimeHandler/TimeHandler.hpp"
-#include <avr\sfr_defs.h>
+#include <avr/sfr_defs.h>
 #include <stdlib.h>
 #include <string.h>
 #include <avr/io.h>

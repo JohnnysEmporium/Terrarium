@@ -3,13 +3,13 @@ SHELL := cmd
 MAIN_APP = main
 
 LIB_DHT = ./lib/AVR-DHT/DHT
-LIB_DHT_H = ./lib/DHTHandler/DHTHandler
+LIB_DHT_H = ./src/DHTHandler/DHTHandler
 LIB_HD = ./lib/hd44780/hd44780
-LIB_LCD_H = ./lib/LCDHandler/LCDHandler
-LIB_LCD_CONST_H = ./lib/LCDHandler/LCDConstants
-LIB_TIME_H = ./lib/TimeHandler/TimeHandler
-LIB_DELAY_H = ./lib/DelayHandler/DelayHandler
-LIB_BUTTON_H = ./lib/ButtonHandler/ButtonHandler
+LIB_LCD_H = ./src/LCDHandler/LCDHandler
+LIB_LCD_CONST_H = ./src/LCDHandler/LCDConstants
+LIB_TIME_H = ./src/TimeHandler/TimeHandler
+LIB_DELAY_H = ./src/DelayHandler/DelayHandler
+LIB_BUTTON_H = ./src/ButtonHandler/ButtonHandler
 
 
 # The headers files needed for building the application

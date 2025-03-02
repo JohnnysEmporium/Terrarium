@@ -4,19 +4,17 @@ extern "C" {
 }
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "lib/LCDHandler/LCDHandler.hpp"
-#include "lib/ButtonHandler/ButtonHandler.hpp"
-#include "lib/DHTHandler/DHTHandler.hpp"
-#include "lib/TimeHandler/TimeHandler.hpp"
+#include "./src/LCDHandler/LCDHandler.hpp"
+#include "./src/ButtonHandler/ButtonHandler.hpp"
+#include "./src/DHTHandler/DHTHandler.hpp"
+#include "./src/TimeHandler/TimeHandler.hpp"
 
-ButtonHandler buttonHandler;
+
 //Setting up necessary resources
 void setup() {
   initTimeHandler();
-  buttonHandler = ButtonHandler();
-  bool time_editing_engaged = buttonHandler.initButtonHandler();
   //passing time_editing_engaged by reference
-  setTimeEditingEngaged(time_editing_engaged);
+  initButtonHandler();
   LCDInit();
   DHTInit();
   
@@ -35,7 +33,7 @@ int main()
   {
     manageTime();
     printScreen();
-    buttonHandler.buttonLoop();
+    buttonLoop();
     // LCDOffTimer();
 
 
@@ -54,4 +52,5 @@ int main()
 }
 
 // TODO:  fix setTimeToPrint in LCDHandler, are these many repetitions necessary? Maybe use h_disp[1] = buff; instead of strcat and \0
-//        stopMainPrint in LCDHandler is not reflecting changes from ButtonHandler
+//        fix time increment - it goes too fast
+//        declassify button handler, clear up unnecessary defined variables in hpp, ask gtp what should be in hpp and what not

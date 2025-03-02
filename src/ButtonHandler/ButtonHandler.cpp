@@ -1,38 +1,33 @@
 #include "ButtonHandler.hpp"
 #include <stdlib.h> 
 
-ButtonHandler::ButtonHandler():
-  time_increase_pressed(false), //Initialize/Declare the Pressed variable
-  time_increase_delay_engaged(false),
-  editButtonPressed(false),
-  time_editing_engaged(false),
-  is_editing_time(false),
-  time_printed_after_edit(false),
-  timeframe_for_time_edit(5),
-  timeframe_for_time_edit_s_value_old(-1),
-  time_editing_section(LCD_H),
-  blinkFlag(false),
-  statsFlag(false)
-  {
-    initButtonHandler();
-  }
-
 DelayHandler DH_TimeEditButtonEngaged = DelayHandler();
 DelayHandler DH_StatsButtonEngaged = DelayHandler();
 DelayHandler DH_Blink = DelayHandler();
 DelayHandler DH_TimeIncrement = DelayHandler();
 DelayHandler DH_EditButtonLongPress = DelayHandler();
 
+extern bool printStatsBool = false;
+extern bool time_editing_engaged = false;
 bool isShortPress = false;
 bool isLongPress = false;
 bool wasLCDWakeUp = false;
 bool isEditButtonReset = false;
-extern bool printStatsBool = false;
-uint8_t pressTime = 0;
 bool timeEditFirstRun = true;
+bool time_printed_after_edit = false;
+bool statsFlag = false;
+bool blinkFlag = false;
+bool is_editing_time = false;
+bool time_increase_delay_engaged = false;
+bool time_increase_pressed = false;
+
+ptEnum time_editing_section = LCD_H;
+uint8_t timeframe_for_time_edit_s_value_old = -1;
+uint8_t timeframe_for_time_edit = 5;
+uint8_t pressTime = 0;
 
 
-bool ButtonHandler::initButtonHandler() {
+bool initButtonHandler() {
   //Data Direction Register input PINC5
   DDRC &= ~(1 << PINC5); 
   //Set PINC5 pull-up resistor
@@ -40,12 +35,25 @@ bool ButtonHandler::initButtonHandler() {
 
   DDRD &= ~(1 << PIND2);
   PORTD |= 1 << PIND2;
-
-  return time_editing_engaged;
 }
 
+void resetTimeframeForTimeEdit(){
+  timeframe_for_time_edit = 5;
+}
 
-bool ButtonHandler::isTimeEditTimedOut(){
+void timeIncrementBasedOnSection(){
+  incrementCounter(time_editing_section);
+}
+
+bool isEditButtonPressed(){
+  return (!(PINC & (1<<PC5)));
+}
+
+bool isIncrementButtonPressed(){
+  return (!(PIND & (1<<PD2)));
+}
+
+bool isTimeEditTimedOut(){
   if(S == timeframe_for_time_edit_s_value_old + 1){
     timeframe_for_time_edit--;
   }
@@ -59,18 +67,39 @@ bool ButtonHandler::isTimeEditTimedOut(){
   }
 }
 
-void ButtonHandler::resetTimeframeForTimeEdit(){
-  timeframe_for_time_edit = 5;
+void handleAndResetEditButton(){
+  if(isShortPress && !time_editing_engaged){
+    printStatsBool = true;
+  } 
+
+  if (time_editing_engaged){
+
+    if(timeEditFirstRun){
+      time_editing_section = static_cast<ptEnum>(0);
+      timeEditFirstRun = false;
+    
+    } else if(isShortPress){
+      resetTimeframeForTimeEdit();
+      setTimeToPrint();
+      int temp = static_cast<uint8_t>(time_editing_section);
+      temp++;
+      temp = temp % 3;
+      time_editing_section = static_cast<ptEnum>(temp);
+    }
+  }
+
+  DH_EditButtonLongPress.resetMilisCounter();
+  wasLCDWakeUp = false;
+  isShortPress = false;
+  isLongPress = false;
+  isEditButtonReset = true;
 }
 
-void ButtonHandler::timeIncrementBasedOnSection(){
-  incrementCounter(time_editing_section);
-}
+void timeIncrementButtonLoop() {
 
-void ButtonHandler::timeIncrementButtonLoop() {
-
-  //Check if PIND2 is clear
-  if (!(PIND & (1<<PD2)) && time_editing_engaged) {
+  if(!isIncrementButtonPressed()) return;
+  
+  if (time_editing_engaged) {
 
     //Make sure that the button was released first
     if (!time_increase_pressed) {
@@ -96,11 +125,7 @@ void ButtonHandler::timeIncrementButtonLoop() {
   }
 }
 
-bool isEditButtonPressed() {
-  return (!(PINC & (1<<PC5)));
-}
-
-void ButtonHandler::timeEditButtonLoop(){
+void timeEditButtonLoop(){
   if(!isEditButtonPressed() && !isEditButtonReset){
     handleAndResetEditButton();
     return;
@@ -121,7 +146,6 @@ void ButtonHandler::timeEditButtonLoop(){
   }
 
   if(!wasLCDWakeUp){
-    editButtonPressed = true;
     isShortPress = true;
     DH_EditButtonLongPress.set_flag_after_milis(2000, isLongPress);
 
@@ -132,36 +156,7 @@ void ButtonHandler::timeEditButtonLoop(){
   }  
 }
 
-void ButtonHandler::handleAndResetEditButton(){
-    if(isShortPress && !time_editing_engaged){
-      printStatsBool = true;
-    } 
-
-    if (time_editing_engaged){
-
-      if(timeEditFirstRun){
-        time_editing_section = static_cast<ptEnum>(0);
-        timeEditFirstRun = false;
-      
-      } else if(isShortPress){
-        resetTimeframeForTimeEdit();
-        setTimeToPrint();
-        int temp = static_cast<uint8_t>(time_editing_section);
-        temp++;
-        temp = temp % 3;
-        time_editing_section = static_cast<ptEnum>(temp);
-      }
-    }
-
-    DH_EditButtonLongPress.resetMilisCounter();
-    editButtonPressed = false;
-    wasLCDWakeUp = false;
-    isShortPress = false;
-    isLongPress = false;
-    isEditButtonReset = true;
-}
-
-void ButtonHandler::timeEditBlink(){
+void timeEditBlink(){
   if(time_editing_engaged){
 
     LCDWakeUp();
@@ -207,7 +202,7 @@ void ButtonHandler::timeEditBlink(){
   }
 }
 
-void ButtonHandler::buttonLoop(){
+void buttonLoop(){
   timeEditButtonLoop();
   timeEditBlink();
   timeIncrementButtonLoop();      

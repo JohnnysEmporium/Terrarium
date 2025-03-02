@@ -23,7 +23,7 @@ extern uint8_t lampWorkingM = 0;
 extern uint8_t lampWorkingH = 0;
 
 
-bool time_editing_engaged;
+extern bool time_editing_engaged;
 double temp, hum;
 
 bool DHTSpoolUpTimerFlag = true;
