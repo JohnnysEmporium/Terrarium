@@ -10,7 +10,7 @@ Version:   1.11
 #include "hd44780_settings.h"
 #include "inttypes.h"
 
-//LCD Constants for HD44780
+// LCD Constants for HD44780
 #define LCD_CLR                 0    // DB0: clear display
 
 #define LCD_HOME                1    // DB1: return to home position

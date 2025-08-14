@@ -20,15 +20,15 @@ DHT11/DHT22 temperature and humidity sensor driver for AVR microcontrollers.
 + Program: 0 bytes  
 + Data: 1 byte  
   + DHT status: 1 byte  
-  
+
 **Compiler:**  
 AVR-GCC  
-  
+
 **Optimization Level:**  
 Optimize (-O1)  
-  
+
 --- 
 
-![picture alt](https://raw.githubusercontent.com/efthymios-ks/AVR-DHT-Library/master/Demonstration.png)  
+![picture alt](https:// raw.githubusercontent.com/efthymios-ks/AVR-DHT-Library/master/Demonstration.png)  
 
 ---

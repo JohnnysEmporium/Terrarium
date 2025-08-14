@@ -12,16 +12,16 @@
 ||
 */
 
-//------ Headers ------//
+// ------ Headers ------//
 #include <inttypes.h>
 #include <util/delay.h>
 #include <avr/io.h>
 
 #include "IO_Macros.h"
-#include "DHT_Settings.h"
-//----------------------//
+#include "DHT_settings.h"
+// ----------------------//
 
-//----- Auxiliary data -------------------//
+// ----- Auxiliary data -------------------//
 #define DHT11						 1
 #define DHT22						 2
 #define DHT_ReadInterval			1500
@@ -36,9 +36,9 @@ enum DHT_Status_t
 	DHT_Error_Checksum,
 	DHT_Error_Timeout
 };
-//-----------------------------------------//
+// -----------------------------------------//
 
-//----- Prototypes---------------------------//
+// ----- Prototypes---------------------------//
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,5 +53,5 @@ double DHT_CelsiusToKelvin(double Temperature);
 #ifdef __cplusplus
 } // extern "C"
 #endif
-//-------------------------------------------//
+// -------------------------------------------//
 #endif

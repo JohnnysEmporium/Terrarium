@@ -4,27 +4,27 @@ Author :   SA Development
 Version:   1.11
 *****************************************************************************/
 
-#include "avr\pgmspace.h"
-#include "avr\sfr_defs.h"
+#include "avr/pgmspace.h"
+#include "avr/sfr_defs.h"
 #include "hd44780_settings.h"
 #include "hd44780.h"
 #if (USE_ADELAY_LIBRARY==1)
   #include "adelay.h"
 #else
   #define Delay_ns(__ns) \
-    if((unsigned long) (F_CPU/1000000000.0 * __ns) != F_CPU/1000000000.0 * __ns)\
+    if ((unsigned long) (F_CPU/1000000000.0 * __ns) != F_CPU/1000000000.0 * __ns)\
           __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1000000000.0 * __ns)+1);\
     else __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1000000000.0 * __ns))
   #define Delay_us(__us) \
-    if((unsigned long) (F_CPU/1000000.0 * __us) != F_CPU/1000000.0 * __us)\
+    if ((unsigned long) (F_CPU/1000000.0 * __us) != F_CPU/1000000.0 * __us)\
           __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1000000.0 * __us)+1);\
     else __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1000000.0 * __us))
   #define Delay_ms(__ms) \
-    if((unsigned long) (F_CPU/1000.0 * __ms) != F_CPU/1000.0 * __ms)\
+    if ((unsigned long) (F_CPU/1000.0 * __ms) != F_CPU/1000.0 * __ms)\
           __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1000.0 * __ms)+1);\
     else __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1000.0 * __ms))
   #define Delay_s(__s) \
-    if((unsigned long) (F_CPU/1.0 * __s) != F_CPU/1.0 * __s)\
+    if ((unsigned long) (F_CPU/1.0 * __s) != F_CPU/1.0 * __s)\
           __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1.0 * __s)+1);\
     else __builtin_avr_delay_cycles((unsigned long) ( F_CPU/1.0 * __s))
 #endif
@@ -53,7 +53,7 @@ Version:   1.11
 #define PIN(x) (*(&x - 2))           // Address of Data Direction Register of Port X
 #define DDR(x) (*(&x - 1))           // Address of Input Register of Port X
 
-//PORT defines
+// PORT defines
 #define lcd_rs_port_low() LCD_RS_PORT&=~_BV(LCD_RS_PIN)
 #if RW_LINE_IMPLEMENTED==1
   #define lcd_rw_port_low() LCD_RW_PORT&=~_BV(LCD_RW_PIN)
@@ -93,7 +93,7 @@ Version:   1.11
 #define lcd_db6_port_set(value) if (value) lcd_db6_port_high(); else lcd_db6_port_low();
 #define lcd_db7_port_set(value) if (value) lcd_db7_port_high(); else lcd_db7_port_low();
 
-//PIN defines
+// PIN defines
 #define lcd_db0_pin_get() (((PIN(LCD_DB0_PORT) & _BV(LCD_DB0_PIN))==0)?0:1)
 #define lcd_db1_pin_get() (((PIN(LCD_DB1_PORT) & _BV(LCD_DB1_PIN))==0)?0:1)
 #define lcd_db2_pin_get() (((PIN(LCD_DB2_PORT) & _BV(LCD_DB2_PIN))==0)?0:1)
@@ -103,7 +103,7 @@ Version:   1.11
 #define lcd_db6_pin_get() (((PIN(LCD_DB6_PORT) & _BV(LCD_DB6_PIN))==0)?0:1)
 #define lcd_db7_pin_get() (((PIN(LCD_DB7_PORT) & _BV(LCD_DB7_PIN))==0)?0:1)
 
-//DDR defines
+// DDR defines
 #define lcd_rs_ddr_low() DDR(LCD_RS_PORT)&=~_BV(LCD_RS_PIN)
 #if RW_LINE_IMPLEMENTED==1
   #define lcd_rw_ddr_low() DDR(LCD_RW_PORT)&=~_BV(LCD_RW_PIN)
@@ -271,7 +271,7 @@ Returns:  byte read from LCD controller
 static uint8_t lcd_read(uint8_t rs)
   {
     uint8_t data;
-    
+
     #if (WAIT_MODE==1 && RW_LINE_IMPLEMENTED==1)
     if (rs)
       lcd_waitbusy();
@@ -291,7 +291,7 @@ static uint8_t lcd_read(uint8_t rs)
       }
     else lcd_rs_port_low();                           // RS=0: Read Busy Flag
 
-    
+
     lcd_rw_port_high();                               // RW=1: Read Mode
 
     #if LCD_BITS==4
@@ -326,7 +326,7 @@ static uint8_t lcd_read(uint8_t rs)
       lcd_db6_port_high();
       lcd_db5_port_high();
       lcd_db4_port_high();
-    #else //using 8-Bit-Mode
+    #else // using 8-Bit-Mode
       lcd_db7_ddr_low();                              // Configure Data Pins as Input
       lcd_db6_ddr_low();
       lcd_db5_ddr_low();
@@ -364,7 +364,7 @@ static uint8_t lcd_read(uint8_t rs)
       lcd_db1_port_high();
       lcd_db0_port_high();
     #endif
-    
+
     lcd_rw_port_low();
 
     #if (WAIT_MODE==0 || RW_LINE_IMPLEMENTED==0)
@@ -416,7 +416,7 @@ static void lcd_write(uint8_t data,uint8_t rs)
       }
 
     #if LCD_BITS==4
-      lcd_db7_port_set(data&_BV(7));                  //Output High Nibble
+      lcd_db7_port_set(data&_BV(7));                  // Output High Nibble
       lcd_db6_port_set(data&_BV(6));
       lcd_db5_port_set(data&_BV(5));
       lcd_db4_port_set(data&_BV(4));
@@ -427,7 +427,7 @@ static void lcd_write(uint8_t data,uint8_t rs)
       Delay_ns(500);
       lcd_e_port_low();
 
-      lcd_db7_port_set(data&_BV(3));                  //Output High Nibble
+      lcd_db7_port_set(data&_BV(3));                  // Output High Nibble
       lcd_db6_port_set(data&_BV(2));
       lcd_db5_port_set(data&_BV(1));
       lcd_db4_port_set(data&_BV(0));
@@ -443,12 +443,12 @@ static void lcd_write(uint8_t data,uint8_t rs)
       lcd_db5_port_high();
       lcd_db4_port_high();
 
-    #else //using 8-Bit_Mode
-      lcd_db7_port_set(data&_BV(7));                  //Output High Nibble
+    #else // using 8-Bit_Mode
+      lcd_db7_port_set(data&_BV(7));                  // Output High Nibble
       lcd_db6_port_set(data&_BV(6));
       lcd_db5_port_set(data&_BV(5));
       lcd_db4_port_set(data&_BV(4));
-      lcd_db3_port_set(data&_BV(3));                  //Output High Nibble
+      lcd_db3_port_set(data&_BV(3));                  // Output High Nibble
       lcd_db2_port_set(data&_BV(2));
       lcd_db1_port_set(data&_BV(1));
       lcd_db0_port_set(data&_BV(0));
@@ -563,7 +563,7 @@ Returns:  none
 *************************************************************************/
 void lcd_init()
   {
-    //Set All Pins as Output
+    // Set All Pins as Output
     lcd_e_ddr_high();
     lcd_rs_ddr_high();
     #if RW_LINE_IMPLEMENTED==1
@@ -580,14 +580,14 @@ void lcd_init()
       lcd_db0_ddr_high();
     #endif
 
-    //Set All Control Lines Low
+    // Set All Control Lines Low
     lcd_e_port_low();
     lcd_rs_port_low();
     #if RW_LINE_IMPLEMENTED==1
       lcd_rw_port_low();
     #endif
 
-    //Set All Data Lines High
+    // Set All Data Lines High
     lcd_db7_port_high();
     lcd_db6_port_high();
     lcd_db5_port_high();
@@ -599,10 +599,10 @@ void lcd_init()
       lcd_db0_port_high();
     #endif
 
-    //Startup Delay
+    // Startup Delay
     Delay_ms(DELAY_RESET);
 
-    //Initialize Display
+    // Initialize Display
     lcd_db7_port_low();
     lcd_db6_port_low();
     Delay_ns(100);
@@ -624,7 +624,7 @@ void lcd_init()
 
     Delay_us(40);
 
-    //Init differs between 4-bit and 8-bit from here
+    // Init differs between 4-bit and 8-bit from here
     #if (LCD_BITS==4)
       lcd_db4_port_low();
       Delay_ns(100);
@@ -694,16 +694,16 @@ void lcd_init()
       Delay_us(40);
     #endif
 
-    //Display Off
+    // Display Off
     lcd_command(_BV(LCD_DISPLAYMODE));
 
-    //Display Clear
+    // Display Clear
     lcd_clrscr();
 
-    //Entry Mode Set
+    // Entry Mode Set
     lcd_command(_BV(LCD_ENTRY_MODE) | _BV(LCD_ENTRY_INC));
 
-    //Display On
+    // Display On
     lcd_command(_BV(LCD_DISPLAYMODE) | _BV(LCD_DISPLAYMODE_ON));
   }
 

@@ -57,8 +57,8 @@ LCD_BITS=8     // 8 for 8 Bit I/O Mode
 
 The next choice is whether to implement a RW signal or not.  If you don't need to read anything back from the LCD, then you can skip implementing it and simply connect the RW signal to ground.  This is nice because it doesn't take up a uC pin this way.  If however, you need to read something back from the LCD, you will need to implement RW.  Use the RW_LINE_IMPLEMENTED parameter to set this:
 
-RW_LINE_IMPLEMENTED=0     //0 for no RW line (RW on LCD tied to ground)
-RW_LINE_IMPLEMENTED=1     //1 for RW line present
+RW_LINE_IMPLEMENTED=0     // 0 for no RW line (RW on LCD tied to ground)
+RW_LINE_IMPLEMENTED=1     // 1 for RW line present
 
 The last big decision is which WAIT_MODE to use.  You can select between Delay Mode or Check Busy Mode.  Delay Mode will delay after each LCD command to make sure that there is time for the LCD to execute the command before the next one can be issued.  Check Busy Mode will read the check busy flag from the LCD to see if the LCD is still busy or ready for the next command.  Check Busy Mode requires the RW line to be implemented, however you can implement an RW line (RW_LINE_IMPLEMENTED=1) and use Delay Mode (WAIT_MODE=0).  You might think that the Check Busy Mode technique would be faster, but it is actually slower when running a clock below 10Mhz.  This is because the extra code is takes to check it takes up more time that the Delay Mode would have.  At 10Mhz or above, Check Busy Mode will be faster.  At 16Mhz, it was 20% faster than Delay Mode, but at 8Mhz Delay Mode was 10% faster.  Use the WAIT_MODE parameter to set this:
 
@@ -96,13 +96,13 @@ To move the cursor to the right:
   lcd_command(_BV(LCD_MOVE) | _BV(LCD_MOVE_RIGHT));
 
 To move the cursor to a specific location:
-  lcd_goto(0x40); //0x40 is often the beginning of the second line
-                  //each LCD display will have its memory mapped
-                  //differently
+  lcd_goto(0x40); // 0x40 is often the beginning of the second line
+                  // each LCD display will have its memory mapped
+                  // differently
 
 To create a custom character:
-  lcd_command(_BV(LCD_CGRAM)+0*8);    //The 0 on this line may be 0-7
-  lcd_putc(0b00000); //5x8 bitmap of character, in this example a backslash
+  lcd_command(_BV(LCD_CGRAM)+0*8);    // The 0 on this line may be 0-7
+  lcd_putc(0b00000); // 5x8 bitmap of character, in this example a backslash
   lcd_putc(0b10000);
   lcd_putc(0b01000);
   lcd_putc(0b00100);
@@ -110,13 +110,13 @@ To create a custom character:
   lcd_putc(0b00001);
   lcd_putc(0b00000);
   lcd_putc(0b00000);
-  lcd_goto(0);       //DO NOT FORGET to issue a GOTO command to go back to writing to the LCD
-                     //ddram OR you will spend hours like me thinking the LCD is locked up 
-                     //when it working just fine and you are outputting to cgram instead of 
-                     //ddram!
+  lcd_goto(0);       // DO NOT FORGET to issue a GOTO command to go back to writing to the LCD
+                     // ddram OR you will spend hours like me thinking the LCD is locked up 
+                     // when it working just fine and you are outputting to cgram instead of 
+                     // ddram!
 
 To display this custom character:
-  lcd_putc(0);                        //Displays custom character 0
+  lcd_putc(0);                        // Displays custom character 0
 
 To shift the display so that the characters on screen are pushed to the left:
   lcd_command(_BV(LCD_MOVE) | _BV(LCD_MOVE_DISP));
@@ -139,7 +139,7 @@ VERSION HISTORY:
 1.10 - Multiple LCD display support (Up to 4) added.
 
        Bugs in the read command and 8 bit modes fixed and tested.
-       
+
        You are now able to put any pins on any pin and port.  The data pins are no longer required to be on 0-3 or 0-7.  This gives you full freedom to put these pins anywhere.
 
        All pin changes are now done through SBI CBI instructions meaning there will be zero problems with interrupts of other things occuring on pins of the same port as the LCD pins.
